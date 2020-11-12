@@ -1,20 +1,20 @@
-const { createUserId, setMissingUserIds } = require('./lib.js')
+const { createUserID, setMissingUserIDs } = require('./lib.js')
 
-describe('createUserId', () => {
+describe('createUserID', () => {
   it('removes accents and switches to lower case', () => {
-    expect(createUserId('Jorge Cárdenas')).toBe('jorge_cardenas');
+    expect(createUserID('Jorge Cárdenas')).toBe('jorge_cardenas');
   });
 
   it('removes all special chars', () => {
-    expect(createUserId('Jorge Cárdenas*')).toBe('jorge_cardenas');
+    expect(createUserID('Jorge Cárdenas*')).toBe('jorge_cardenas');
   });
 
   it('removes extra white space', () => {
-    expect(createUserId('\tVerónica  Muñoz  \r\n')).toBe('veronica_munoz');
+    expect(createUserID('\tVerónica  Muñoz  \r\n')).toBe('veronica_munoz');
   });
 });
 
-describe('setMissingUserIds', () => {
+describe('setMissingUserIDs', () => {
   it("sets user id to the rows that don't have one in a new array", () => {
     const rows = [
       {nombre: 'Julio Castro', id: 'jcastro', email: 'jcastro@mail.com'},
@@ -28,7 +28,7 @@ describe('setMissingUserIds', () => {
       {nombre: 'Eduardo Nuñez', id: 'eduardo_nunez', email: 'enunez@mail.com'},
     ]
 
-    expect(setMissingUserIds(rows)).toEqual(expected);
+    expect(setMissingUserIDs(rows)).toEqual(expected);
   });
 
   it('Handles users with same names', () => {
@@ -45,7 +45,7 @@ describe('setMissingUserIds', () => {
       {nombre: 'Eduardo Nuñez', id: 'eduardo_nunez', email: 'enunez@mail.com'},
       {nombre: 'Jorge Martinez', id: 'jorge_martinez1' },
     ]
-    expect(setMissingUserIds(rows)).toEqual(expected);
+    expect(setMissingUserIDs(rows)).toEqual(expected);
   })
 
 });

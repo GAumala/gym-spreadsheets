@@ -9,7 +9,7 @@ const loadDoc = async id => {
   await doc.useServiceAccountAuth(credentials);
   await doc.loadInfo(); // loads document properties and worksheets
   return doc;
-}
+};
 
 const collectSheetMetadata = (doc, sheet) => ({
   docTitle: doc.title,
@@ -17,20 +17,17 @@ const collectSheetMetadata = (doc, sheet) => ({
   rowCount: sheet.rowCount,
 });
 
-const loadMemberIDRows = async () => {
+const loadMemberIDs = async () => {
   const doc = await loadDoc(docIds.members);
   const sheet = doc.sheetsByIndex[0]; 
   const rows = await sheet.getRows();
   const metadata = collectSheetMetadata(doc, sheet);
   const { data, translateKey } = 
     boundary.getMemberIdDataFromSheet(metadata, rows);
+  const reconciliateFn = 
+    manipulations.reconciliateCellEdits(rows, translateKey, data);
 
-  return { 
-    rows,
-    data, 
-    reconciliateFn: 
-      manipulations.reconciliateCellEdits(rows, translateKey, data)
-  };
-}
+  return { rows, data, reconciliateFn };
+};
 
-module.exports = { loadMemberIDRows };
+module.exports = { loadMemberIDs };

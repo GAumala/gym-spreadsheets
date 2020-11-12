@@ -1,12 +1,12 @@
 const normalizeString = require('normalize-for-search');
 
-const createUserId = (name, suffix = "") => 
+const createUserID = (name, suffix = "") => 
   normalizeString(name.trim()
                       .replace('ñ', 'n'))
     .replace(/\s{1,}/g, "_")
     .replace(/[^a-z_]/g, '') + suffix;
 
-const setMissingUserIds = rows => {
+const setMissingUserIDs = rows => {
   const knownIds = new Set();
   let missingIds = false;
   rows.forEach((user, index) => {
@@ -24,11 +24,11 @@ const setMissingUserIds = rows => {
     if (user.id)
       return user;
 
-    let newId = createUserId(user.nombre);
+    let newId = createUserID(user.nombre);
     let attempts = 0;
     while (knownIds.has(newId)) {
       attempts += 1;
-      newId = createUserId(user.nombre, attempts);
+      newId = createUserID(user.nombre, attempts);
     }
     knownIds.add(newId);
     return { ...user, id: newId };
@@ -37,6 +37,6 @@ const setMissingUserIds = rows => {
   
 
 module.exports = {
-  createUserId,
-  setMissingUserIds
+  createUserID,
+  setMissingUserIDs
 }

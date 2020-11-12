@@ -3,9 +3,9 @@ const operations = require('./operations.js')
 
 const main = async () => {
   const deps = {
-    loadMemberIDRows: sheetsAPI.loadMemberIDRows
+    loadMemberIDs: sheetsAPI.loadMemberIDs
   };
-  return operations.setMissingUserIds(deps);
+  return operations.setMissingUserIDs(deps);
 }
 
 main()

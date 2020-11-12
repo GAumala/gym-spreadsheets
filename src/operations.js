@@ -5,19 +5,19 @@ const lib = require('./lib.js')
  * filas que no contengan uno.
  *
  * deps:
- * - loadMemberRows: funcion para cargar las filas de miembros desde el 
+ * - loadMemberIDRows: funcion para cargar las filas de miembros desde el 
  *   spreadsheet. debe de contener los miembros sanitizados en 'data' 
- *   y la funcion 'reconciliateCellEdits' para hacer el update.
+ *   y la funcion 'reconciliateFn' para hacer el update.
  */
 const setMissingUserIds = async (deps) => {
-  const membersSheet = await deps.loadMemberRows();
+  const membersSheet = await deps.loadMemberIDRows();
   if (membersSheet.error)
     throw membersSheet.error;
 
   const original = membersSheet.data;
   const updated = lib.setMissingUserIds(original);
 
-  membersSheet.reconciliateCellEdits(updated);
+  return membersSheet.reconciliateFn(updated);
 }
 
 module.exports = { setMissingUserIds };

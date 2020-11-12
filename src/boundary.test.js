@@ -1,18 +1,25 @@
-const { getMembersFromSheetRows } = require('./schemas.js');
+const { SheetBoundaryError } = require('./errors.js')
+const { getMemberDataFromSheet } = require('./boundary.js');
 
-describe('getMembersFromSheetRows', () => {
+const sheetMetadata = {
+  docTitle: 'Test document',
+  sheetTitle: '',
+  rowCount: 10
+};
+
+describe('getMemberDataFromSheet', () => {
   it('accepts valid data and returns a sanitized value', () => {
     const rows = [
       {ID: null, 
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
        LESIONES: undefined, 
-       ENTRADA: '9:00'},
+       ENTRADA: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
        LESIONES: null, 
-       ENTRADA: '9:00'},
+       ENTRADA: '07:00'},
       {ID: 'nestor_ponce', 
        NOMBRE: 'Nestor Ponce', 
        EMAIL: 'nponce@mail.com', 
@@ -25,20 +32,20 @@ describe('getMembersFromSheetRows', () => {
        nombre: 'Carlos Hernández', 
        email: '', 
        lesiones: '', 
-       entrada: '9:00'},
+       entrada: '07:00'},
       {id: '', 
        nombre: 'Luis Suarez', 
        email: '', 
        lesiones: '', 
-       entrada: '9:00'},
+       entrada: '07:00'},
       {id: 'nestor_ponce', 
        nombre: 'Nestor Ponce', 
        email: 'nponce@mail.com', 
        lesiones: '', 
        entrada: '12:00'},
     ]
-    const memberData = getMembersFromSheetRows(rows);
-    expect(memberData.value).toEqual(expectedList)
+    const sheetData = getMemberDataFromSheet(sheetMetadata, rows);
+    expect(sheetData.data).toEqual(expectedList)
   });
 
   it('adds a translateKey function when data is correct', () => {
@@ -49,31 +56,29 @@ describe('getMembersFromSheetRows', () => {
        ENTRADA: '12:00'},
     ];
 
-    const { translateKey } = getMembersFromSheetRows(rows);
+    const { translateKey } = getMemberDataFromSheet(sheetMetadata, rows);
     expect(translateKey('nombre')).toEqual('NOMBRE');
   });
 
-  it('returns an error attribute if data is invalid', () => {
+  it('throws SheetBoundaryError if data is invalid', () => {
     const rows = [
       {ID: null, 
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
        LESIONES: undefined, 
-       ENTRADA: '9:00'},
+       ENTRADA: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
        LESIONES: null, 
-       ENTRADA: '9:00'},
+       ENTRADA: '07:00'},
       {NOMBRE: '', 
        EMAIL: 'nponce@mail.com', 
        LESIONES: '', 
        ENTRADA: '12:00'}
     ];
 
-    const { error } = getMembersFromSheetRows(rows);
-    const expectedMsg = 
-      expect.stringMatching(/^\"\[0\].entrada\" must be one of/g)
-    expect(error.message).toEqual(expectedMsg)
+    expect(() => getMemberDataFromSheet(sheetMetadata, rows))
+      .toThrow(SheetBoundaryError);
   });
 });

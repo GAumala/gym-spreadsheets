@@ -3,10 +3,11 @@ const operations = require('./operations.js')
 
 const main = async () => {
   const deps = {
-    loadMemberRows: sheetsAPI.loadMemberRows
+    loadMemberIDRows: sheetsAPI.loadMemberIDRows
   };
-  operations.setMissingUserIds(deps);
+  return operations.setMissingUserIds(deps);
 }
 
 main()
+.then(res => console.log('Exito! Celdas modificadas: ' + res.editedCells))
 .catch(e => console.error(e));

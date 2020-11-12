@@ -1,14 +1,24 @@
 const Joi = require('joi');
 
+const memberIDRegex = new RegExp('^[a-z_0-9]+$');
+const memberIdentificationSchema = Joi.object({
+  id: Joi.string()
+        .pattern(memberIDRegex)
+        .allow(''),
+  nombre: Joi.string().required()
+});
+
+
+const memberIdentificationArraySchema = 
+  Joi.array().items(memberIdentificationSchema);
 
 const memberSchema = Joi.object({
   id: Joi.string()
-        .pattern(new RegExp('^[a-z_0-9]$'))
-        .default('')
+        .pattern(memberIDRegex)
         .allow(''),
   nombre: Joi.string().required(),
-  email: Joi.string().email().default('').allow(''),
-  lesiones: Joi.string().default('').allow(''),
+  email: Joi.string().email().allow(''),
+  lesiones: Joi.string().allow(''),
   entrada: Joi.any()
               .valid('06:00', 
                      '07:00', 
@@ -19,36 +29,12 @@ const memberSchema = Joi.object({
                      '17:00', 
                      '18:00', 
                      '19:00')
-                .allow('')
-                .default(''),
+              .required()
 });
 
-const memberRowsSchema = Joi.array().items(memberSchema);
+const memberArraySchema = Joi.array().items(memberSchema);
 
-const getMembersFromSheetRows = rows => {
-  const validation = memberRowsSchema.validate(
-    rows.map(row => ({
-      id: row.ID || '',
-      nombre: row.NOMBRE,
-      email: row.EMAIL || '',
-      entrada: row.ENTRADA || '',
-      lesiones: row.LESIONES || '',
-    })
-  ));
-
-  if (validation.error)
-    return validation;
-
-  const translateKey = key => {
-    switch (key) {
-      case 'id': return 'ID';
-      case 'nombre': return 'NOMBRE';
-      case 'email': return 'EMAIL';
-      case 'entrada': return 'ENTRADA';
-      case 'lesiones': return 'LESIONES';
-    }
-  }
-  return { ...validation, translateKey }
-}
-
-module.exports = { getMembersFromSheetRows }
+module.exports = { 
+  memberArraySchema, 
+  memberIdentificationArraySchema 
+};

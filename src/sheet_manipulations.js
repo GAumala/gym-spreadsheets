@@ -1,4 +1,5 @@
 const reconciliateCellEdits = (rows, translateKey, oldData) => (newData) => {
+  let editedCells = 0;
   for (let i = 0; i < rows.length; i++) {
     const currentRow = rows[i];
 
@@ -12,12 +13,14 @@ const reconciliateCellEdits = (rows, translateKey, oldData) => (newData) => {
       if (oldValue !== newValue) {
         currentRow[translateKey(key)] = newValue;
         editedRow = true;
+        editedCells += 1;
       }
     })
 
     if (editedRow)
       currentRow.save();
   }
+  return {editedCells};
 }
 
 

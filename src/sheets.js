@@ -1,6 +1,6 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const docIds = require('../docs.json')
-const schemas = require('./schemas.js')
+const boundary = require('./boundary.js')
 const manipulations = require('./sheet_manipulations.js');
 
 const loadDoc = async id => {
@@ -11,21 +11,26 @@ const loadDoc = async id => {
   return doc;
 }
 
-const loadMemberRows = async () => {
+const collectSheetMetadata = (doc, sheet) => ({
+  docTitle: doc.title,
+  sheetTitle: sheet.title,
+  rowCount: sheet.rowCount,
+});
+
+const loadMemberIDRows = async () => {
   const doc = await loadDoc(docIds.members);
   const sheet = doc.sheetsByIndex[0]; 
   const rows = await sheet.getRows();
-  const validationRes = schemas.getMembersFromSheetRows(rows);
-  if (validationRes.error)
-    return validationRes
+  const metadata = collectSheetMetadata(doc, sheet);
+  const { data, translateKey } = 
+    boundary.getMemberIdDataFromSheet(metadata, rows);
 
-  const { value, translateKey } = validationRes;
   return { 
     rows,
-    data: value, 
-    reconciliateCellEdits: 
-      manipulations.reconciliateCellEdits(rows, translateKey, value)
+    data, 
+    reconciliateFn: 
+      manipulations.reconciliateCellEdits(rows, translateKey, data)
   };
 }
 
-module.exports = { loadMemberRows };
+module.exports = { loadMemberIDRows };

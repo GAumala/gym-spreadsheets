@@ -8,15 +8,16 @@ CREATE TABLE miembro(
 );
 CREATE UNIQUE INDEX memberid_index ON miembro(id);
 
-CREATE TABLE medicionDiff(
-  miembro       INT   NOT NULL,
-  pesoFinal     REAL  NOT NULL,
-  fatFinal      REAL  NOT NULL,
-  muscleFinal   REAL  NOT NULL,
-  pesoInicial   REAL  NOT NULL,
-  fatInicial    REAL  NOT NULL,
-  muscleInicial REAL  NOT NULL,
-  FOREIGN KEY(miembro) REFERENCES miembro(rowid)
+CREATE TABLE challengeStart(
+  miembro   INT  NOT NULL,
+  medicion  INT  NOT NULL,
+  FOREIGN KEY(miembro) REFERENCES miembro(id)
+);
+
+CREATE TABLE challengeEnd(
+  miembro   INT  NOT NULL,
+  medicion  INT  NOT NULL,
+  FOREIGN KEY(miembro) REFERENCES miembro(id)
 );
 
 CREATE TABLE reserva(
@@ -24,5 +25,5 @@ CREATE TABLE reserva(
   mes     TEXT NOT NULL,
   dia     TEXT NOT NULL,
   hora    TEXT NOT NULL,
-  FOREIGN KEY(miembro) REFERENCES miembro(rowid)
+  FOREIGN KEY(miembro) REFERENCES miembro(id)
 );

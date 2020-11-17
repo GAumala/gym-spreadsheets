@@ -14,6 +14,10 @@ const createSheetBoundaryErrorMsg = (docInfo, details) => {
       return msg + 
         `\nLa columna '${columnName}' solo permite valores [${context.valids}], pero la fila #${rowNumber} contiene '${context.value}'.`;
 
+    if (type === 'number.base')
+      return msg + 
+        `\nLa columna '${columnName}' solo permite números, pero la fila #${rowNumber} contiene '${context.value}'.`;
+
     return msg + 
       `\n'${context.value}' en la fila #${rowNumber} no es un valor permitido en la columna '${columnName}' (tipo: ${type}).`
   }, msgStart);

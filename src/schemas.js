@@ -34,7 +34,18 @@ const memberSchema = Joi.object({
 
 const memberArraySchema = Joi.array().items(memberSchema);
 
+const challengeSchema = Joi.object({
+  id: Joi.string()
+        .pattern(memberIDRegex).required(),
+  peso: Joi.number().positive().precision(1),
+  fat: Joi.number().positive().precision(1),
+  muscle: Joi.number().positive().precision(1)
+});
+
+const challengeArraySchema = Joi.array().items(challengeSchema);
+
 module.exports = { 
+  challengeArraySchema,
   memberArraySchema, 
   memberIdentificationArraySchema 
 };

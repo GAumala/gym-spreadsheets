@@ -30,4 +30,39 @@ const loadMemberIDs = async () => {
   return { rows, data, reconciliateFn };
 };
 
-module.exports = { loadMemberIDs };
+const loadMembers = async () => {
+  const doc = await loadDoc(docIds.members);
+  const sheet = doc.sheetsByIndex[0]; 
+  const rows = await sheet.getRows();
+  const metadata = collectSheetMetadata(doc, sheet);
+  const { data, translateKey } = 
+    boundary.getMemberDataFromSheet(metadata, rows);
+  const reconciliateFn = 
+    manipulations.reconciliateCellEdits(rows, translateKey, data);
+
+  return { rows, data, reconciliateFn };
+};
+
+const loadChallengeContestants = async () => {
+  const doc = await loadDoc(docIds.challenge);
+  const sheetStart = doc.sheetsByIndex[0]; 
+  const sheetEnd = doc.sheetsByIndex[1]; 
+
+  const rowsStart = await sheetStart.getRows();
+  const metadataStart = collectSheetMetadata(doc, sheetStart);
+  const { data: startData } = 
+    boundary.getChallengeDataFromSheet(metadataStart, rowsStart);
+
+  const rowsEnd = await sheetEnd.getRows();
+  const metadataEnd = collectSheetMetadata(doc, sheetEnd);
+  const { data: endData } = 
+    boundary.getChallengeDataFromSheet(metadataEnd, rowsEnd);
+
+  return { startData, endData };
+};
+
+module.exports = { 
+  loadChallengeContestants, 
+  loadMemberIDs,
+  loadMembers
+};

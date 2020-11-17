@@ -1,4 +1,5 @@
 const {
+  challengeArraySchema,
   memberArraySchema, 
   memberIdentificationArraySchema
 } = require('./schemas.js')
@@ -21,6 +22,17 @@ const translateMemberKey = key => {
     case 'email': return 'EMAIL';
     case 'entrada': return 'ENTRADA';
     case 'lesiones': return 'LESIONES';
+    default: return key;
+  }
+};
+
+const translateChallengeKey = key => {
+  switch (key) {
+    case 'id': return 'ID';
+    case 'peso': return 'PESO';
+    case 'fat': return '%FAT';
+    case 'muscle': return '%MUSCL';
+    default: return key;
   }
 };
 
@@ -66,8 +78,25 @@ const getMemberDataFromSheet = (metadata, sheetRows) =>
     sheetRows
   });
 
+const getChallengeDataFromSheet = (metadata, sheetRows) => 
+  runBoundary({
+    schema: challengeArraySchema,
+    mapRowsFn: row => ({
+      id: getAsString(row.ID),
+      peso: row.PESO,
+      fat: row['%FAT'],
+      muscle: row['%MUSCL']
+    }),
+    translateKeyFn: translateChallengeKey,
+    metadata,
+    sheetRows
+  });
+
+
 module.exports = {
+  getChallengeDataFromSheet,
   getMemberDataFromSheet,
   getMemberIdDataFromSheet,
+  translateChallengeKey,
   translateMemberKey,
 };

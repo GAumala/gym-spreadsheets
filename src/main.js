@@ -1,13 +1,17 @@
+const db = require('./db.js')
 const sheetsAPI = require('./sheets.js')
 const operations = require('./operations.js')
 
 const main = async () => {
   const deps = {
-    loadMemberIDs: sheetsAPI.loadMemberIDs
+    loadChallengeContestants: sheetsAPI.loadChallengeContestants,
+    loadMembers: sheetsAPI.loadMembers
   };
-  return operations.setMissingUserIDs(deps);
+
+  return operations.pickChallengeWinners(deps);
 }
 
 main()
-.then(res => console.log('Exito! Celdas modificadas: ' + res.editedCells))
-.catch(e => console.error(e));
+.then(res => console.log('Los ganadores son:\n', res))
+.catch(e => console.error(e))
+.then(() => db.destroy());

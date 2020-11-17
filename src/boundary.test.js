@@ -1,5 +1,8 @@
 const { SheetBoundaryError } = require('./errors.js')
-const { getMemberDataFromSheet } = require('./boundary.js');
+const { 
+  getChallengeDataFromSheet,
+  getMemberDataFromSheet
+} = require('./boundary.js');
 
 const sheetMetadata = {
   docTitle: 'Test document',
@@ -79,6 +82,63 @@ describe('getMemberDataFromSheet', () => {
     ];
 
     expect(() => getMemberDataFromSheet(sheetMetadata, rows))
+      .toThrow(SheetBoundaryError);
+  });
+});
+
+describe('getChallengeDataFromSheet', () => {
+  it('accepts valid data and returns a sanitized value', () => {
+    const rows = [
+      { 
+        ID: 'iliana_naranjo', 
+        PESO: 61.5, 
+        ['%FAT']: 21.6,
+        ['%MUSCL']: 15.1
+      },
+      { 
+        ID: 'cesar_velez', 
+        PESO: '82.9', 
+        ['%FAT']: '41.3',
+        ['%MUSCL']: '33.1'
+      }
+    ];
+
+    const expectedList = [
+      { 
+        id: 'iliana_naranjo', 
+        peso: 61.5, 
+        fat: 21.6,
+        muscle: 15.1
+      },
+      { 
+        id: 'cesar_velez', 
+        peso: 82.9, 
+        fat: 41.3,
+        muscle: 33.1
+      }
+    ];
+    const sheetData = getChallengeDataFromSheet(sheetMetadata, rows);
+    expect(sheetData.data).toEqual(expectedList)
+  });
+
+it('throws SheetBoundaryError if data is invalid', () => {
+    const rows = [
+      { 
+        ID: 'iliana_naranjo', 
+        PESO: 61.5, 
+        ['%FAT']: 21.6,
+        ['%MUSCL']: 15.1
+      },
+      { 
+        ID: 'cesar_velez', 
+        PESO: '82.9', 
+        ['%FAT']: '41.3',
+        ['%MUSCL']: ''
+      }
+    ];
+
+    
+    expect (() => getChallengeDataFromSheet(sheetMetadata, rows))
       .toThrow(SheetBoundaryError);
   });
 });

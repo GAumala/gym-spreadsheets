@@ -1,6 +1,6 @@
 const { 
   numberToThousandthInt 
-} = require('./lib/units.js')
+} = require('../lib/units.js')
 
 const createChallengeDBRows = (challengeColumn, sheetData) => {
   return sheetData

@@ -1,7 +1,8 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const docIds = require('../docs.json')
 const boundary = require('./boundary.js')
-const manipulations = require('./sheet_manipulations.js');
+const manipulations = require('./sheets/manipulations.js');
+const { FatalError } = require('./errors.js');
 
 const loadDoc = async id => {
   const doc = new GoogleSpreadsheet(id);
@@ -25,7 +26,9 @@ const loadMemberIDs = async () => {
   const { data, translateKey } = 
     boundary.getMemberIdDataFromSheet(metadata, rows);
   const reconciliateFn = 
-    manipulations.reconciliateCellEdits(rows, translateKey, data);
+    manipulations.reconciliateData({ 
+      sheet, rows, translateKey, originalData: data 
+    });
 
   return { rows, data, reconciliateFn };
 };
@@ -38,7 +41,9 @@ const loadMembers = async () => {
   const { data, translateKey } = 
     boundary.getMemberDataFromSheet(metadata, rows);
   const reconciliateFn = 
-    manipulations.reconciliateCellEdits(rows, translateKey, data);
+    manipulations.reconciliateData({ 
+      sheet, rows, translateKey, originalData: data 
+    });
 
   return { rows, data, reconciliateFn };
 };
@@ -61,7 +66,30 @@ const loadChallengeContestants = async () => {
   return { startData, endData };
 };
 
+const createTimeTableSheet = async sheetTitle => {
+  const doc = await loadDoc(docIds.timetable);
+  const existingSheet = doc.sheetsByTitle[sheetTitle];
+  
+  if (existingSheet)
+    throw new FatalError('SHEET_ALREADY_EXISTS', { title: sheetTitle });
+
+  const newSheet = await doc.addSheet({ 
+    title: sheetTitle,
+    headerValues: ['DÍA', 'HORA', 'MIEMBRO'] 
+  });
+
+  const rows = await newSheet.getRows();
+  const translateKey = boundary.translateTimetableKey;
+  const data = [];
+  const reconciliateFn = manipulations.reconciliateData({ 
+    sheet: newSheet, rows, translateKey, originalData: data 
+  });
+  
+  return { rows, reconciliateFn, data };
+};
+
 module.exports = { 
+  createTimeTableSheet,
   loadChallengeContestants, 
   loadMemberIDs,
   loadMembers

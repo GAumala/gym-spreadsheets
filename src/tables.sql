@@ -22,8 +22,8 @@ CREATE TABLE challengeEnd(
 
 CREATE TABLE reserva(
   miembro INT  NOT NULL,
-  mes     TEXT NOT NULL,
   dia     TEXT NOT NULL,
   hora    TEXT NOT NULL,
   FOREIGN KEY(miembro) REFERENCES miembro(id)
 );
+CREATE UNIQUE INDEX reserva_index ON reserva(dia, hora);

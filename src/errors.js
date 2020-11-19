@@ -24,7 +24,6 @@ const createSheetBoundaryErrorMsg = (docInfo, details) => {
 };
   
 
-
 class SheetAPIError extends Error {
   constructor(apiError) {
     super(apiError.message)
@@ -66,7 +65,40 @@ class SheetBoundaryError extends Error {
   }
 }
 
+const getFatalErrorMsg = (key, params) => {
+  switch (key) {
+    case 'SHEET_ALREADY_EXISTS':
+      return `La hoja ${params.title} ya existe. Si quieres recrearla por favor borrala.`;
+    case 'EXCESS_HOURS': 
+      return params.excessHours.map(({ entrada, count }) => 
+        `Hay demasiados miembros (${count}) reservados para las ${entrada}. Por favor remueve alguno.`)
+        .join('\n')
+    default: 
+      `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
+  }
+}
+
+class FatalError extends Error {
+  constructor(key, params) {
+    const msg = getFatalErrorMsg(key, params);
+    super(msg)
+    this.name = 'FatalError'
+    this.message = msg;
+  }
+  
+  toJSON() {
+    return {
+      error: {
+        name: this.name,
+        message: this.message,
+        stacktrace: this.stack
+      }
+    }
+  }
+}
+
 module.exports = {
+  FatalError,
   SheetAPIError,
   SheetBoundaryError
 }

@@ -1,4 +1,5 @@
-const knex = require('./db.js')
+const knex = require('../db.js')
+const { trainingHours } = require('../lib/constants.js');
 
 const clear = (db = knex) => Promise.all([
   db('reserva').truncate(), 
@@ -8,6 +9,7 @@ const clear = (db = knex) => Promise.all([
 ]);
 
 const clearMembers = (db = knex) => db('miembro').truncate();
+const clearReservas = (db = knex) => db('reserva').truncate();
 
 const clearChallengeData = (db = knex) => Promise.all([
   db('challengeStart').truncate(), 
@@ -48,10 +50,49 @@ const setMemberRows = rows =>
     return insertMiembro(rows, trx);
   });
 
+const getMemberIDsByTrainingHour = (entrada, db = knex) => 
+  db.from('miembro')
+    .select('id')
+    .where({ entrada })
+    .limit(10);
+
+const createMembersByHourMap = async (db = knex) => {
+  const membersByHour = {};
+  for (let i = 0; i < trainingHours.length; i++) {
+    const hour = trainingHours[i];
+    const members = await getMemberIDsByTrainingHour(hour, db);
+    membersByHour[hour] = members;
+  }
+  return membersByHour;
+}
+
+const checkExcessMembersInTimeSlot = () => 
+  knex.from('miembro')
+    .select(knex.raw('entrada, COUNT(id) as count'))
+    .groupBy('entrada')
+    .having('count', '>', 9)
+
+const createMonthReservations = monthSlots => 
+  knex.transaction(async trx => {
+    await clearReservas(trx);
+
+    const membersByHour = await createMembersByHourMap(trx); 
+    return monthSlots.map(slot => 
+      membersByHour[slot.hora].map(({ id }) => 
+        ({ 
+          miembro: id, 
+          hora: slot.hora, 
+          dia: slot.dia }
+        ))
+    ).flat();
+  });
+
 module.exports = { 
+  checkExcessMembersInTimeSlot,
   clear, 
-  pickChallengeWinners,
+  createMonthReservations,
   findMiembroById, 
   insertMiembro,
+  pickChallengeWinners,
   setMemberRows
 }

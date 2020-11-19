@@ -36,6 +36,15 @@ const translateChallengeKey = key => {
   }
 };
 
+const translateTimetableKey = key => {
+  switch (key) {
+    case 'dia': return 'DÍA';
+    case 'hora': return 'HORA';
+    case 'miembro': return 'MIEMBRO';
+    default: return key;
+  }
+};
+
 const runBoundary = args => {
   const {schema, mapRowsFn, translateKeyFn, metadata, sheetRows} = args;
   const validation = schema.validate(sheetRows.map(mapRowsFn));
@@ -99,4 +108,5 @@ module.exports = {
   getMemberIdDataFromSheet,
   translateChallengeKey,
   translateMemberKey,
+  translateTimetableKey
 };

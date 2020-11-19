@@ -1,3 +1,4 @@
+const { trainingHours } = require('./lib/constants.js');
 const Joi = require('joi');
 
 const memberIDRegex = new RegExp('^[a-z_0-9]+$');
@@ -20,15 +21,7 @@ const memberSchema = Joi.object({
   email: Joi.string().email().allow(''),
   lesiones: Joi.string().allow(''),
   entrada: Joi.any()
-              .valid('06:00', 
-                     '07:00', 
-                     '08:00', 
-                     '09:30', 
-                     '11:00', 
-                     '12:00', 
-                     '17:00', 
-                     '18:00', 
-                     '19:00')
+              .valid(...trainingHours)
               .required()
 });
 

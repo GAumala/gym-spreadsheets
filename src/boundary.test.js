@@ -1,7 +1,8 @@
 const { SheetBoundaryError } = require('./errors.js')
 const { 
   getChallengeDataFromSheet,
-  getMemberDataFromSheet
+  getMemberDataFromSheet,
+  getTimetableDataFromSheet
 } = require('./boundary.js');
 
 const sheetMetadata = {
@@ -134,6 +135,58 @@ it('throws SheetBoundaryError if data is invalid', () => {
         PESO: '82.9', 
         ['%FAT']: '41.3',
         ['%MUSCL']: ''
+      }
+    ];
+
+    
+    expect (() => getChallengeDataFromSheet(sheetMetadata, rows))
+      .toThrow(SheetBoundaryError);
+  });
+});
+
+describe('getTimetableDataFromSheet', () => {
+  it('accepts valid data and returns a sanitized value', () => {
+    const rows = [
+      { 
+        ['DÍA']: '09-Lun',
+        HORA: '08:00',
+        MIEMBRO: 'iliana_naranjo', 
+      },
+      { 
+        ['DÍA']: '10-Mar',
+        HORA: '18:00',
+        MIEMBRO: 'cesar_velez', 
+      }
+    ];
+
+    const expectedList = [
+      { 
+        miembro: 'iliana_naranjo', 
+        dia: '09-Lun', 
+        hora: '08:00',
+      },
+      { 
+        miembro: 'cesar_velez', 
+        dia: '10-Mar', 
+        hora: '18:00',
+      }
+    ];
+
+    const sheetData = getTimetableDataFromSheet(sheetMetadata, rows);
+    expect(sheetData.data).toEqual(expectedList)
+  });
+
+  it('throws SheetBoundaryError if data is invalid', () => {
+    const rows = [
+      { 
+        ['DÍA']: '9',
+        HORA: '08:00',
+        MIEMBRO: 'iliana_naranjo', 
+      },
+      { 
+        ['DÍA']: '10-Mar',
+        HORA: '18:00',
+        MIEMBRO: 'cesar_velez', 
       }
     ];
 

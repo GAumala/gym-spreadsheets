@@ -23,6 +23,49 @@ const createSheetBoundaryErrorMsg = (docInfo, details) => {
   }, msgStart);
 };
   
+const createUserInputBoundaryErrorMsg = (details) => {
+  const msgStart = `Por favor revisa los datos ingresados.`;
+  return details.reduce((msg, detailItem) => {
+    const { path, type, context } = detailItem
+    const fieldName = path[0];
+
+    if (type === 'string.empty')
+      return msg + 
+        `\nEl campo '${fieldName}' no debe estar vacío.`;
+
+    if (type === 'any.only')
+      return msg + 
+        `\nEl campo '${fieldName}' solo permite valores [${context.valids}], pero se ingresó '${context.value}'.`;
+
+    if (type === 'number.base')
+      return msg + 
+        `\nEl campo '${fieldName}' solo permite números, se ingresó '${context.value}'.`;
+
+    return msg + 
+      `\n'${context.value}' no es un valor permitido en el calmpo '${fieldName}' (tipo: ${type}).`
+  }, msgStart);
+};
+
+const getFatalErrorMsg = (key, params) => {
+  switch (key) {
+    case 'SHEET_ALREADY_EXISTS':
+      return `La hoja ${params.title} ya existe. Si quieres recrearla por favor borrala.`;
+    case 'SHEET_NOT_FOUND':
+      return `La hoja ${params.title} no existe.`;
+    case 'NEW_MEMBER_ENTRADA_CONSTR':
+      return `Error al agregar nuevo miembro con horario de ${params.entrada}. Ya hay ${params.count} miembros en ese horario.`;
+    case 'EXCESS_MEMBERS_IN_HOUR': 
+      return params.violations.map(({ entrada, count }) => 
+        `Hay demasiados miembros (${count}) reservados para las ${entrada}. Por favor remueve alguno.`)
+        .join('\n')
+    case 'EXCESS_RESERVATIONS_IN_SLOT': 
+      return params.violations.map(({ dia, hora, count }) => 
+        `Hay demasiadas reservas (${count}) para la fecha ${dia} ${hora}. Por favor remueve alguna reserva temporal.`)
+        .join('\n')
+    default: 
+      `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
+  }
+}
 
 class SheetAPIError extends Error {
   constructor(apiError) {
@@ -65,16 +108,25 @@ class SheetBoundaryError extends Error {
   }
 }
 
-const getFatalErrorMsg = (key, params) => {
-  switch (key) {
-    case 'SHEET_ALREADY_EXISTS':
-      return `La hoja ${params.title} ya existe. Si quieres recrearla por favor borrala.`;
-    case 'EXCESS_HOURS': 
-      return params.excessHours.map(({ entrada, count }) => 
-        `Hay demasiados miembros (${count}) reservados para las ${entrada}. Por favor remueve alguno.`)
-        .join('\n')
-    default: 
-      `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
+class UserInputBoundaryError extends Error {
+  constructor(joiError) {
+    const message = 
+      createUserInputBoundaryErrorMsg(joiError.details); 
+    super(message)
+    this.name = 'UserInputBoundaryError'
+    this.message = message;
+    this.details = joiError.details;
+  }
+  
+  toJSON() {
+    return {
+      error: {
+        name: this.name,
+        message: this.message,
+        details: this.details,
+        stacktrace: this.stack
+      }
+    }
   }
 }
 
@@ -100,5 +152,6 @@ class FatalError extends Error {
 module.exports = {
   FatalError,
   SheetAPIError,
-  SheetBoundaryError
+  SheetBoundaryError,
+  UserInputBoundaryError
 }

@@ -1,6 +1,10 @@
-const calendar = require('./lib/calendar.js');
-const { trainingHours } = require('./lib/constants.js');
-const { getDayShortName } = require('./lib/dateFormatters.js');
+const { 
+  getMonthShortName, 
+} = require('./lib/dateFormatters.js');
+const {
+  compareTimeSlots,
+  convertDateToSlot,
+} = require('./lib/timeSlot.js');
 const normalizeString = require('normalize-for-search');
 
 const createUserID = (name, suffix = "") => 
@@ -38,30 +42,11 @@ const setMissingUserIDs = rows => {
   });
 };
 
-const leftPadDay = day => {
-  if (day < 10) return '0' + day; 
-  return '' + day;
-}
-
-const createMonthSlots = (year, month) => {
-  const slots = [];
-  const totalDays = calendar.getNumberOfDaysInMonth(year, month);
-  const firstWeekDay = calendar.getFirstDayOfMonth(year, month);
-
-  for (let i = 0; i < totalDays; i++) {
-    const dayNumber = i + 1;
-    const weekDay = (firstWeekDay + i) % 7;
-    const dia = `${leftPadDay(dayNumber)}-${getDayShortName(weekDay)}`;
-    if (weekDay !== 0)
-      slots.push(...trainingHours.map(hora => ({hora, dia})))
-  }
-
-  return slots;
-}
-  
+const getTimetableSheetName = (year, month) => 
+  `${getMonthShortName(month)}-${year}`.toUpperCase();
 
 module.exports = {
-  createMonthSlots,
   createUserID,
+  getTimetableSheetName,
   setMissingUserIDs
 }

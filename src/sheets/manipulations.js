@@ -48,8 +48,19 @@ const reconciliateData = ctx => async newData => {
   return {editedCells};
 };
 
+const resetData = ({ sheet, translateKey }) => async newData => {
+  const headerValues = [...sheet.headerValues];
+  await sheet.clear();
 
+  if (newData.length === 0)
+    return 
+
+  const newRows = newData.map(translateObject(translateKey));
+  await sheet.setHeaderRow(headerValues)
+  await sheet.addRows(newRows, { raw: true });
+}
 
 module.exports = {
-  reconciliateData
+  reconciliateData,
+  resetData
 }

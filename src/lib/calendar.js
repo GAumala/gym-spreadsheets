@@ -16,7 +16,14 @@ const getNumberOfDaysInMonth = (year, month) => {
   return date.getDate();
 }
 
+const getNextMonth = (year, month) => {
+  const nextMonth = month == 12 ? 1 : month + 1;
+  const maybeNextYear = month == 12 ? year + 1 : year;
+  return [maybeNextYear, nextMonth];
+}
+
 module.exports = {
   getFirstDayOfMonth,
+  getNextMonth,
   getNumberOfDaysInMonth,
 }

@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`setMemberRows throws FatalError if there are too many members with same entrada 1`] = `[FatalError: Hay demasiados miembros (11) reservados para las 07:00. Por favor remueve alguno.]`;
+
+exports[`setReservationRows throws FatalError if there are too many reservaciontions at the same slot 1`] = `[FatalError: Hay demasiadas reservas (11) para la fecha 26-Jue 07:00. Por favor remueve alguna reserva temporal.]`;

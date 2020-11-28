@@ -1,6 +1,8 @@
 const db = require('../db.js')
 const q = require('./queries.js')
 
+const getAllMembers = () => db.select('*').from('miembro');
+const getAllReservationtions = () => db.select('*').from('reservacion');
 
 afterAll(() => db.destroy());
 
@@ -86,7 +88,7 @@ describe('pickChallengeWinners', () => {
   });
 });
 
-describe('createMonthReservations', () => {
+describe('createMonthReservationtions', () => {
   beforeAll(async () => {
     await q.clear();
 
@@ -123,7 +125,7 @@ describe('createMonthReservations', () => {
     await q.insertMiembro(miembros);
   });
 
-  it('returns correct reservation rows', async () => {
+  it('returns correct reservaciontion rows', async () => {
     const monthSlots = [
       {dia: '01-Lun', hora: '06:00'},
       {dia: '01-Lun', hora: '07:00'},
@@ -146,17 +148,47 @@ describe('createMonthReservations', () => {
       {dia: '02-Mar', hora: '07:00', miembro: 'harry'},
 
     ]
-    const reservations = await q.createMonthReservations(monthSlots);
-    expect(reservations).toEqual(expected);
+    const reservaciontions = await q.createMonthReservationtions(monthSlots);
+    expect(reservaciontions).toEqual(expected);
   });
 });
 
-describe('checkExcessMembersInTimeSlot', () => {
-  beforeAll(async () => {
+describe('setMemberRows', () => {
+  beforeEach(async () => {
     await q.clear();
   });
 
-  it('returns the time slot that has excess members', async () => {
+  it('inserts rows', async () => {
+    const miembros = [
+      {
+        id: 'jeff',
+        nombre: 'Jeff',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'tom',
+        nombre: 'Tom',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'alice',
+        nombre: 'Alice',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+    ];
+
+    await q.setMemberRows(miembros)
+    const insertedRows = await getAllMembers();
+    expect(insertedRows).toHaveLength(3);
+  });
+
+  it('throws FatalError if there are too many members with same entrada', async () => {
     const miembros = [
       {
         id: 'jeff',
@@ -229,6 +261,13 @@ describe('checkExcessMembersInTimeSlot', () => {
         lesiones: '',    
       },
       {
+        id: 'kenny',
+        nombre: 'Kenny',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
         id: 'alice',
         nombre: 'Alice',
         email: '',
@@ -236,11 +275,400 @@ describe('checkExcessMembersInTimeSlot', () => {
         lesiones: '',    
       },
     ];
-    await q.insertMiembro(miembros);
 
-    const expected = [{ entrada: '07:00', count: 10 }]
-    const res = await q.checkExcessMembersInTimeSlot();
+    let thrownError;
+    try {
+      await q.setMemberRows(miembros)
+    } catch (e) {
+      thrownError = e;
+    }
+    expect(thrownError).toMatchSnapshot();
+  });
+});
 
-    expect(res).toEqual(expected);
+describe('setReservationRows', () => {
+  beforeEach(async () => {
+    await q.clear();
+
+    const miembros = [
+      {
+        id: 'jeff',
+        nombre: 'Jeff',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'tom',
+        nombre: 'Tom',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'bill',
+        nombre: 'Bill',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'harry',
+        nombre: 'Harry',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'alex',
+        nombre: 'Alex',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'jenny',
+        nombre: 'Jenny',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'dave',
+        nombre: 'Dave',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'charlie',
+        nombre: 'Charlie',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'fred',
+        nombre: 'Fred',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'willy',
+        nombre: 'Willy',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'kenny',
+        nombre: 'Kenny',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'alice',
+        nombre: 'Alice',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+    ];
+
+    await q.setMemberRows(miembros)
+  });
+
+  it('inserts rows', async () => {
+    const reservaciones = [
+      {
+        miembro: 'jeff',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'tom',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'alice',
+        dia: '26-Jue',
+        hora: '08:00',
+      },
+    ];
+
+    await q.setReservationRows(reservaciones)
+    const insertedRows = await getAllReservationtions();
+    expect(insertedRows).toHaveLength(3);
+  });
+
+  it('throws FatalError if there are too many reservaciontions at the same slot', async () => {
+    const reservaciones = [
+      {
+        miembro: 'jeff',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'tom',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'harry',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'bill',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'jenny',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'alex',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'dave',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'charlie',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'fred',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'willy',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'kenny',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'alice',
+        dia: '26-Jue',
+        hora: '08:00',
+      },
+    ];
+
+    let thrownError;
+    try {
+      await q.setReservationRows(reservaciones)
+    } catch (e) {
+      thrownError = e;
+    }
+    expect(thrownError).toMatchSnapshot();
+  });
+});
+
+describe('updateReservationtiontionsWithNewMember', () => {
+  beforeEach(async () => {
+    await q.clear();
+
+    const miembros = [
+      {
+        id: 'jeff',
+        nombre: 'Jeff',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'tom',
+        nombre: 'Tom',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'bill',
+        nombre: 'Bill',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'harry',
+        nombre: 'Harry',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'alex',
+        nombre: 'Alex',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'jenny',
+        nombre: 'Jenny',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'dave',
+        nombre: 'Dave',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'charlie',
+        nombre: 'Charlie',
+        email: '',
+        entrada: '07:00',
+        lesiones: '',    
+      },
+      {
+        id: 'fred',
+        nombre: 'Fred',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'willy',
+        nombre: 'Willy',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'kenny',
+        nombre: 'Kenny',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+      {
+        id: 'alice',
+        nombre: 'Alice',
+        email: '',
+        entrada: '08:00',
+        lesiones: '',    
+      },
+    ];
+
+    await q.setMemberRows(miembros)
+  });
+
+  it('returns empty unavailableDays if there are no conflicts', async () => {
+    const newMiembro = { id: 'jeff', entrada: '07:00' };
+    const slots = [
+      {
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        dia: '27-Vie',
+        hora: '07:00',
+      },
+      {
+        dia: '28-Sáb',
+        hora: '07:00',
+      },
+    ];
+
+    const { newData, unavailableDays } = 
+      await q.updateReservationsWithNewMember(newMiembro, slots);
+    expect(newData).toHaveLength(3);
+    expect(unavailableDays).toHaveLength(0);
+  });
+
+  it('returns days with conflicts in unavailableDays array', async () => {
+    const reservaciones = [
+      {
+        miembro: 'jeff',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'tom',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'harry',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'bill',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'jenny',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'alex',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'dave',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'charlie',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'fred',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        miembro: 'willy',
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+    ];
+    await q.setReservationRows(reservaciones)
+    
+    const newMiembro = { id: 'kenny', entrada: '07:00' };
+    const slots = [
+      {
+        dia: '26-Jue',
+        hora: '07:00',
+      },
+      {
+        dia: '27-Vie',
+        hora: '07:00',
+      },
+      {
+        dia: '28-Sáb',
+        hora: '07:00',
+      },
+    ];
+
+    const { newData, unavailableDays } = 
+      await q.updateReservationsWithNewMember(newMiembro, slots);
+    expect(newData).toHaveLength(12);
+    expect(unavailableDays).toEqual(['26-Jue']);
   });
 });

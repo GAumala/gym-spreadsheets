@@ -66,6 +66,10 @@ const loadChallengeContestants = async () => {
   return { startData, endData };
 };
 
+const hasTimeTableSheet = async sheetTitle => {
+
+}
+
 const createTimeTableSheet = async sheetTitle => {
   const doc = await loadDoc(docIds.timetable);
   const existingSheet = doc.sheetsByTitle[sheetTitle];
@@ -79,12 +83,28 @@ const createTimeTableSheet = async sheetTitle => {
   });
 
   const rows = await newSheet.getRows();
-  const translateKey = boundary.translateTimetableKey;
-  const data = [];
+  const translateKey = boundary.translateTimeSlotKey;
   const reconciliateFn = manipulations.reconciliateData({ 
-    sheet: newSheet, rows, translateKey, originalData: data 
+    sheet: newSheet, rows, translateKey, originalData: []
   });
   
+  return { rows, reconciliateFn, data: [] };
+};
+
+const loadTimeSlots = async (sheetTitle) => {
+  const doc = await loadDoc(docIds.timetable);
+  const sheet = doc.sheetsByTitle[sheetTitle];
+  if (!sheet)
+    return { err: 'SHEET_NOT_FOUND' };
+
+  const rows = await sheet.getRows();
+  const translateKey = boundary.translateTimeSlotKey;
+  const metadata = collectSheetMetadata(doc, sheet);
+  const { data } = boundary.getTimetableDataFromSheet(metadata, rows);
+
+  const reconciliateFn = manipulations.resetData({ 
+    sheet, translateKey  
+  });
   return { rows, reconciliateFn, data };
 };
 
@@ -92,5 +112,6 @@ module.exports = {
   createTimeTableSheet,
   loadChallengeContestants, 
   loadMemberIDs,
-  loadMembers
+  loadMembers,
+  loadTimeSlots
 };

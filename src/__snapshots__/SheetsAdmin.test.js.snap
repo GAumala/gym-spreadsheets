@@ -1,0 +1,298 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`addNewMember happy path with only current month timetables calls reconciliateFn with the updated members list 1`] = `
+Array [
+  Array [
+    Array [
+      Object {
+        "email": "",
+        "entrada": "18:00",
+        "id": "jeff",
+        "lesiones": "",
+        "nombre": "Jeff",
+      },
+      Object {
+        "email": "",
+        "entrada": "18:00",
+        "id": "ben",
+        "lesiones": "",
+        "nombre": "Ben",
+      },
+      Object {
+        "email": "",
+        "entrada": "08:00",
+        "id": "jenny",
+        "lesiones": "",
+        "nombre": "Jenny",
+      },
+    ],
+  ],
+]
+`;
+
+exports[`addNewMember happy path with only current month timetables calls reconciliateFn with the updated reservations list 1`] = `
+Array [
+  Array [
+    Array [
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "jeff",
+      },
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "ben",
+      },
+      Object {
+        "dia": "25-Mié",
+        "hora": "08:00",
+        "miembro": "jenny",
+      },
+      Object {
+        "dia": "26-Jue",
+        "hora": "08:00",
+        "miembro": "jenny",
+      },
+      Object {
+        "dia": "27-Vie",
+        "hora": "08:00",
+        "miembro": "jenny",
+      },
+      Object {
+        "dia": "28-Sáb",
+        "hora": "08:00",
+        "miembro": "jenny",
+      },
+      Object {
+        "dia": "30-Lun",
+        "hora": "08:00",
+        "miembro": "jenny",
+      },
+    ],
+  ],
+]
+`;
+
+exports[`addNewMember happy path with two timetables calls reconciliateFn with the updated members list 1`] = `
+Array [
+  Array [
+    Array [
+      Object {
+        "email": "",
+        "entrada": "18:00",
+        "id": "jeff",
+        "lesiones": "",
+        "nombre": "Jeff",
+      },
+      Object {
+        "email": "",
+        "entrada": "18:00",
+        "id": "ben",
+        "lesiones": "",
+        "nombre": "Ben",
+      },
+      Object {
+        "email": "",
+        "entrada": "19:00",
+        "id": "alex",
+        "lesiones": "",
+        "nombre": "Alex",
+      },
+    ],
+  ],
+]
+`;
+
+exports[`addNewMember happy path with two timetables calls reconciliateFn with the updated reservations list for each of the 2 sheets 1`] = `
+Array [
+  Array [
+    Array [
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "jeff",
+      },
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "ben",
+      },
+      Object {
+        "dia": "25-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "26-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "27-Vie",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "28-Sáb",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "30-Lun",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+    ],
+  ],
+  Array [
+    Array [
+      Object {
+        "dia": "01-Mar",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "02-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "03-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "04-Vie",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "05-Sáb",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "07-Lun",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "08-Mar",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "09-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "10-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "11-Vie",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "12-Sáb",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "14-Lun",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "15-Mar",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "16-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "17-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "18-Vie",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "19-Sáb",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "21-Lun",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "22-Mar",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "ben",
+      },
+      Object {
+        "dia": "23-Lun",
+        "hora": "18:00",
+        "miembro": "jeff",
+      },
+      Object {
+        "dia": "23-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "24-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "25-Vie",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "26-Sáb",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "28-Lun",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "29-Mar",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "30-Mié",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+      Object {
+        "dia": "31-Jue",
+        "hora": "19:00",
+        "miembro": "alex",
+      },
+    ],
+  ],
+]
+`;

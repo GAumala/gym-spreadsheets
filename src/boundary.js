@@ -1,9 +1,14 @@
 const {
   challengeArraySchema,
   memberArraySchema, 
-  memberIdentificationArraySchema
+  memberIdentificationArraySchema,
+  newMemberSchema,
+  timeSlotArraySchema
 } = require('./schemas.js')
-const {SheetBoundaryError} = require('./errors.js')
+const {
+  SheetBoundaryError,
+  UserInputBoundaryError
+} = require('./errors.js')
 
 const getAsString = (value) => {
   if (typeof value === 'string')
@@ -36,7 +41,7 @@ const translateChallengeKey = key => {
   }
 };
 
-const translateTimetableKey = key => {
+const translateTimeSlotKey = key => {
   switch (key) {
     case 'dia': return 'DÍA';
     case 'hora': return 'HORA';
@@ -45,7 +50,7 @@ const translateTimetableKey = key => {
   }
 };
 
-const runBoundary = args => {
+const runSheetBoundary = args => {
   const {schema, mapRowsFn, translateKeyFn, metadata, sheetRows} = args;
   const validation = schema.validate(sheetRows.map(mapRowsFn));
 
@@ -60,8 +65,21 @@ const runBoundary = args => {
   }
 }
 
+const runUserInputBoundary = args => {
+  const {schema, input} = args;
+  const validation = schema.validate(input);
+
+  if (validation.error) {
+    throw new UserInputBoundaryError(validation.error);
+  }
+
+  return { 
+    data: validation.value, 
+  }
+}
+
 const getMemberIdDataFromSheet = (metadata, sheetRows) => 
-  runBoundary({
+  runSheetBoundary({
     schema: memberIdentificationArraySchema,
     mapRowsFn: row => ({
       id: getAsString(row.ID),
@@ -73,7 +91,7 @@ const getMemberIdDataFromSheet = (metadata, sheetRows) =>
   });
 
 const getMemberDataFromSheet = (metadata, sheetRows) => 
-  runBoundary({
+  runSheetBoundary({
     schema: memberArraySchema,
     mapRowsFn: row => ({
       id: getAsString(row.ID),
@@ -88,7 +106,7 @@ const getMemberDataFromSheet = (metadata, sheetRows) =>
   });
 
 const getChallengeDataFromSheet = (metadata, sheetRows) => 
-  runBoundary({
+  runSheetBoundary({
     schema: challengeArraySchema,
     mapRowsFn: row => ({
       id: getAsString(row.ID),
@@ -101,12 +119,32 @@ const getChallengeDataFromSheet = (metadata, sheetRows) =>
     sheetRows
   });
 
+const getTimetableDataFromSheet = (metadata, sheetRows) => 
+  runSheetBoundary({
+    schema: timeSlotArraySchema,
+    mapRowsFn: row => ({
+      miembro: getAsString(row.MIEMBRO),
+      dia: getAsString(row['DÍA']),
+      hora: getAsString(row.HORA),
+    }),
+    translateKeyFn: translateTimeSlotKey,
+    metadata,
+    sheetRows
+  });
+
+const getNewMemberFromUserInput = input => 
+  runUserInputBoundary({
+    schema: newMemberSchema,
+    input
+  });
 
 module.exports = {
   getChallengeDataFromSheet,
   getMemberDataFromSheet,
   getMemberIdDataFromSheet,
+  getNewMemberFromUserInput,
+  getTimetableDataFromSheet,
   translateChallengeKey,
   translateMemberKey,
-  translateTimetableKey
+  translateTimeSlotKey
 };

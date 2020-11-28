@@ -1,4 +1,5 @@
 const { 
+  getNextMonth,
   getFirstDayOfMonth, 
   getNumberOfDaysInMonth 
 } = require('./calendar.js');
@@ -48,5 +49,19 @@ describe('getNumberOfDaysInMonth', () => {
 
   it('handles leap years', () => {
     expect(getNumberOfDaysInMonth(2024, 2)).toBe(29);
+  });
+});
+
+describe('getNextMonth', () => {
+  it('returns same year if current month is not December', () => {
+    expect(getNextMonth(2020, 1)).toEqual([2020, 2]);
+    expect(getNextMonth(2020, 3)).toEqual([2020, 4]);
+    expect(getNextMonth(2020, 5)).toEqual([2020, 6]);
+    expect(getNextMonth(2020, 11)).toEqual([2020, 12]);
+  });
+  it('returns next year if current month is December', () => {
+    expect(getNextMonth(2020, 12)).toEqual([2021, 1]);
+    expect(getNextMonth(2021, 12)).toEqual([2022, 1]);
+    expect(getNextMonth(2022, 12)).toEqual([2023, 1]);
   });
 });

@@ -1,19 +1,16 @@
-const db = require('./db.js')
+const dbConnection = require('./db.js')
 const sheetsAPI = require('./sheets.js')
-const operations = require('./operations.js')
-const dateHelpers = require('./lib/dateHelpers.js')
+const clock = require('./clock.js')
+const db = require('./db/queries.js')
+const SheetsAdmin = require('./SheetsAdmin.js')
 
 const main = async () => {
-  const deps = {
-    getYearAndNextMonth: dateHelpers.getYearAndNextMonth,
-    createTimeTableSheet: sheetsAPI.createTimeTableSheet,
-    loadMembers: sheetsAPI.loadMembers
-  };
-
-  return operations.createTimeTableSheet(deps);
-}
+  const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+  const args = { nombre: 'Steeven Mendoza', entrada: '11:00' };
+  await admin.addNewMember(args);
+};
 
 main()
 .then(res => console.log('Listo!'))
 .catch(e => console.error(e))
-.then(() => db.destroy());
+.then(() => dbConnection.destroy());

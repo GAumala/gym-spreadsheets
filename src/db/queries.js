@@ -1,15 +1,17 @@
 const knex = require('../db.js')
 const { trainingHours } = require('../lib/constants.js');
+const { FatalError } = require('../errors.js');
+const SLOT_CAPACITY = 10;
 
 const clear = (db = knex) => Promise.all([
-  db('reserva').truncate(), 
+  db('reservacion').truncate(), 
   db('challengeStart').truncate(), 
   db('challengeEnd').truncate(), 
   db('miembro').truncate()
 ]);
 
 const clearMembers = (db = knex) => db('miembro').truncate();
-const clearReservas = (db = knex) => db('reserva').truncate();
+const clearReservations = (db = knex) => db('reservacion').truncate();
 
 const clearChallengeData = (db = knex) => Promise.all([
   db('challengeStart').truncate(), 
@@ -22,8 +24,25 @@ const insertChallengeStart = (data, db = knex) =>
   db.table('challengeStart').insert(data);
 const insertChallengeEnd = (data, db = knex) => 
   db.table('challengeEnd').insert(data);
-const insertReserva = (data, db = knex) => 
-  db.table('reserva').insert(data);
+const insertReservation = (data, db = knex) => {
+  if (data.length < 330)
+    return db.table('reservacion').insert(data);
+
+  return db.batchInsert('reservacion', data, 330);
+}
+const deleteSpecificReservation = (reservacion, db = knex) =>
+  db.from('reservacion')
+    .where({ 
+      miembro: reservacion.miembro,
+      dia: reservacion.dia, 
+      hora: reservacion.hora,  
+    })
+    .delete();
+
+const getOrderedTimetable = (db = knex) =>
+  db.from('reservacion')
+    .select('*')
+    .orderBy('dia', 'hora');
 
 const findMiembroById = (id, db = knex) => db.select('*')
   .from('miembro').where({ id });
@@ -47,14 +66,28 @@ const pickChallengeWinners = (startRows, endRows) =>
 const setMemberRows = rows => 
   knex.transaction(async trx => {
     await clearMembers(trx);
-    return insertMiembro(rows, trx);
+    await insertMiembro(rows, trx);
+
+    const violations = await checkMemberEntradaConstraint(trx);
+  if (violations.length > 0) 
+    throw new FatalError('EXCESS_MEMBERS_IN_HOUR', { violations });
   });
 
-const getMemberIDsByTrainingHour = (entrada, db = knex) => 
+const setReservationRows = rows => 
+  knex.transaction(async trx => {
+    await clearReservations(trx);
+    await insertReservation(rows, trx);
+
+    const violations = await checkReservationSlotConstraint(trx);
+  if (violations.length > 0) 
+    throw new FatalError('EXCESS_RESERVATIONS_IN_SLOT', { violations });
+  });
+
+const getMemberIDsByTrainingHour = (entrada, db = knex, limit = SLOT_CAPACITY) => 
   db.from('miembro')
     .select('id')
     .where({ entrada })
-    .limit(10);
+    .limit(limit);
 
 const createMembersByHourMap = async (db = knex) => {
   const membersByHour = {};
@@ -66,15 +99,37 @@ const createMembersByHourMap = async (db = knex) => {
   return membersByHour;
 }
 
-const checkExcessMembersInTimeSlot = () => 
-  knex.from('miembro')
+const checkMemberEntradaConstraint = (db = knex) => 
+  db.from('miembro')
     .select(knex.raw('entrada, COUNT(id) as count'))
     .groupBy('entrada')
-    .having('count', '>', 9)
+    .having('count', '>', SLOT_CAPACITY);
 
-const createMonthReservations = monthSlots => 
+const checkReservationSlotConstraint = (db = knex) => 
+  db.from('reservacion')
+    .select(knex.raw('dia, hora, COUNT(miembro) as count'))
+    .groupBy('dia', 'hora')
+    .having('count', '>', SLOT_CAPACITY)
+
+const findDaysWithHourFull = (hora, db = knex) => 
+  db.from('reservacion')
+    .select(knex.raw('dia, COUNT(miembro) as count'))
+    .where({ hora })
+    .groupBy('dia')
+    .having('count', '>', SLOT_CAPACITY - 1)
+    .then(rows => rows.map(({ dia }) => dia))
+
+const findTempReservationtions = (dia, hora, limit, db = knex) => 
+  db.from('reservacion')
+    .select('miembro', 'dia', 'hora')
+    .where({ dia, hora })
+    .innerJoin('miembro', 'reservacion.miembro', 'miembro.id')
+    .andWhere('miembro.entrada', '<>', 'reservacion.hora')
+    .limit(limit)
+
+const createMonthReservationtions = monthSlots => 
   knex.transaction(async trx => {
-    await clearReservas(trx);
+    await clearReservations(trx);
 
     const membersByHour = await createMembersByHourMap(trx); 
     return monthSlots.map(slot => 
@@ -87,12 +142,45 @@ const createMonthReservations = monthSlots =>
     ).flat();
   });
 
+const insertNewMember = (newMember) => 
+  knex.transaction(async trx => {
+    const { entrada } = newMember;
+    const membersWithSameHour = 
+      await getMemberIDsByTrainingHour(entrada, trx);
+    if (membersWithSameHour.length >= SLOT_CAPACITY)
+      throw new FatalError('NEW_MEMBER_ENTRADA_CONSTR', { 
+        entrada, 
+        count: membersWithSameHour.length 
+      });
+
+    await insertMiembro(newMember, trx);
+  });
+
+const updateReservationsWithNewMember = (miembro, newSlots) => 
+  knex.transaction(async trx => {
+    const unavailableDays = 
+      await findDaysWithHourFull(miembro.entrada, trx)
+
+    const newReservations = newSlots
+      .filter(s => !unavailableDays.includes(s.dia))
+      .map(s => ({ ...s, miembro: miembro.id, hora: miembro.entrada }));
+    await insertReservation(newReservations, trx);
+
+    return {
+      newData: await getOrderedTimetable(trx),
+      unavailableDays
+    };
+  });
+
 module.exports = { 
-  checkExcessMembersInTimeSlot,
+  checkMemberEntradaConstraint,
   clear, 
-  createMonthReservations,
+  createMonthReservationtions,
   findMiembroById, 
   insertMiembro,
+  insertNewMember,
   pickChallengeWinners,
-  setMemberRows
-}
+  setMemberRows,
+  setReservationRows,
+  updateReservationsWithNewMember,
+};

@@ -2,7 +2,7 @@ const db = require('../db.js')
 const q = require('./queries.js')
 
 const getAllMembers = () => db.select('*').from('miembro');
-const getAllReservationtions = () => db.select('*').from('reservacion');
+const getAllReservations = () => db.select('*').from('reservacion');
 
 afterAll(() => db.destroy());
 
@@ -88,7 +88,7 @@ describe('pickChallengeWinners', () => {
   });
 });
 
-describe('createMonthReservationtions', () => {
+describe('createMonthReservations', () => {
   beforeAll(async () => {
     await q.clear();
 
@@ -148,7 +148,7 @@ describe('createMonthReservationtions', () => {
       {dia: '02-Mar', hora: '07:00', miembro: 'harry'},
 
     ]
-    const reservaciontions = await q.createMonthReservationtions(monthSlots);
+    const reservaciontions = await q.createMonthReservations(monthSlots);
     expect(reservaciontions).toEqual(expected);
   });
 });
@@ -400,9 +400,15 @@ describe('setReservationRows', () => {
     ];
 
     await q.setReservationRows(reservaciones)
-    const insertedRows = await getAllReservationtions();
+    const insertedRows = await getAllReservations();
     expect(insertedRows).toHaveLength(3);
   });
+
+  it('handles empty array parameter', async () => {
+    await q.setReservationRows([])
+    const insertedRows = await getAllReservations();
+    expect(insertedRows).toHaveLength(0);
+  })
 
   it('throws FatalError if there are too many reservaciontions at the same slot', async () => {
     const reservaciones = [
@@ -478,7 +484,7 @@ describe('setReservationRows', () => {
   });
 });
 
-describe('updateReservationtiontionsWithNewMember', () => {
+describe('updateReservationsWithNewMember', () => {
   beforeEach(async () => {
     await q.clear();
 

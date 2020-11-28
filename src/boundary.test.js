@@ -194,4 +194,35 @@ describe('getTimetableDataFromSheet', () => {
     expect (() => getChallengeDataFromSheet(sheetMetadata, rows))
       .toThrow(SheetBoundaryError);
   });
+
+  it('sanitizes hour values', () => {
+    const rows = [
+      { 
+        ['DÍA']: '09-Lun',
+        HORA: '8:00',
+        MIEMBRO: 'iliana_naranjo', 
+      },
+      { 
+        ['DÍA']: '10-Mar',
+        HORA: '18:00',
+        MIEMBRO: 'cesar_velez', 
+      }
+    ];
+
+    const expectedList = [
+      { 
+        miembro: 'iliana_naranjo', 
+        dia: '09-Lun', 
+        hora: '08:00',
+      },
+      { 
+        miembro: 'cesar_velez', 
+        dia: '10-Mar', 
+        hora: '18:00',
+      }
+    ];
+
+    const sheetData = getTimetableDataFromSheet(sheetMetadata, rows);
+    expect(sheetData.data).toEqual(expectedList)
+  });
 });

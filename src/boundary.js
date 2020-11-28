@@ -10,6 +10,8 @@ const {
   UserInputBoundaryError
 } = require('./errors.js')
 
+const badHourFormatRegex = new RegExp('^[0-9]:[0-9][0-9]$');
+
 const getAsString = (value) => {
   if (typeof value === 'string')
     return value.trim();
@@ -18,6 +20,14 @@ const getAsString = (value) => {
     return '';
 
   return '' + value;
+}
+
+const getAsHourString = (value) => {
+  const stringValue = getAsString(value);
+  if (badHourFormatRegex.test(stringValue))
+    return '0' + stringValue;
+
+  return stringValue;
 }
 
 const translateMemberKey = key => {
@@ -97,7 +107,7 @@ const getMemberDataFromSheet = (metadata, sheetRows) =>
       id: getAsString(row.ID),
       nombre: getAsString(row.NOMBRE),
       email: getAsString(row.EMAIL),
-      entrada: getAsString(row.ENTRADA),
+      entrada: getAsHourString(row.ENTRADA),
       lesiones: getAsString(row.LESIONES)
     }),
     translateKeyFn: translateMemberKey,
@@ -125,7 +135,7 @@ const getTimetableDataFromSheet = (metadata, sheetRows) =>
     mapRowsFn: row => ({
       miembro: getAsString(row.MIEMBRO),
       dia: getAsString(row['DÍA']),
-      hora: getAsString(row.HORA),
+      hora: getAsHourString(row.HORA),
     }),
     translateKeyFn: translateTimeSlotKey,
     metadata,

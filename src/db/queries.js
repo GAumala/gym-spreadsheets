@@ -76,6 +76,8 @@ const setMemberRows = rows =>
 const setReservationRows = rows => 
   knex.transaction(async trx => {
     await clearReservations(trx);
+    if (rows.length === 0)
+      return;
     await insertReservation(rows, trx);
 
     const violations = await checkReservationSlotConstraint(trx);
@@ -127,7 +129,7 @@ const findTempReservationtions = (dia, hora, limit, db = knex) =>
     .andWhere('miembro.entrada', '<>', 'reservacion.hora')
     .limit(limit)
 
-const createMonthReservationtions = monthSlots => 
+const createMonthReservations = monthSlots => 
   knex.transaction(async trx => {
     await clearReservations(trx);
 
@@ -175,7 +177,7 @@ const updateReservationsWithNewMember = (miembro, newSlots) =>
 module.exports = { 
   checkMemberEntradaConstraint,
   clear, 
-  createMonthReservationtions,
+  createMonthReservations,
   findMiembroById, 
   insertMiembro,
   insertNewMember,

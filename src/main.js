@@ -6,8 +6,8 @@ const SheetsAdmin = require('./SheetsAdmin.js')
 
 const main = async () => {
   const admin = new SheetsAdmin({ sheetsAPI, db, clock });
-  const args = { nombre: 'Steeven Mendoza', entrada: '11:00' };
-  await admin.addNewMember(args);
+  const args = { miembro: 'marco_quiroz', hora: '11:00', dia: 30 };
+  await admin.changeReservationHourForADay(args);
 };
 
 main()

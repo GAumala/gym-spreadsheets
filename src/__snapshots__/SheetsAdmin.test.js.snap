@@ -296,3 +296,9 @@ Array [
   ],
 ]
 `;
+
+exports[`changeReservationHourForADay when reservation already exists throws a readable error 1`] = `[FatalError: Este miembro ya reservó anteriormente para el día 23-Lun a las 18:00.]`;
+
+exports[`changeReservationHourForADay when target hour is already full throws a readable error 1`] = `[FatalError: No se pueden agregar mas miembros para el día 25-Mié a las 17:00. Por favor busca otro horario.]`;
+
+exports[`changeReservationHourForADay when timetable has not been created yet throws a readable error 1`] = `[FatalError: La hoja DEC-2020 no existe.]`;

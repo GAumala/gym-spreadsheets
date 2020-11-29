@@ -8,6 +8,7 @@ const {
   getMonthShortName
 } = require('./lib/dateFormatters.js');
 const {
+  convertDateToSlot,
   createMonthSlots,
   createFutureSlotsAtHour,
   breakTimeSlotsWithDate 
@@ -15,6 +16,11 @@ const {
 const calendar = require('./lib/calendar.js');
 const { createChallengeDBRows } = require('./db/tableHelpers.js');
 const { FatalError } = require('./errors.js');
+
+const moveDateArrayToNextMonthStart = dateArray => {
+  const [year, month] = dateArray;
+  return [...calendar.getNextMonth(year, month), 1, 0, 0];
+}
 
 class SheetsAdmin {
   constructor({ sheetsAPI, clock, db }) {
@@ -130,6 +136,7 @@ class SheetsAdmin {
     return unavailableDays;
   }
 
+
   /**
    * Agrega una nueva fila al spreadsheet de miembro. 
    * Adicionalmente actualiza los spreadsheets de reservaciones de este mes y 
@@ -155,8 +162,7 @@ class SheetsAdmin {
 
     const dateArray = clock.getFullDateArray();
     const [year, month] = dateArray;
-    const nextMonthDateArray = 
-      [...calendar.getNextMonth(year, month), 1, 0, 0];
+    const nextMonthDateArray = moveDateArrayToNextMonthStart(dateArray);
 
     await this.updateTimeTableWithNewMember({newMember, dateArray});
     await this.updateTimeTableWithNewMember({
@@ -165,6 +171,57 @@ class SheetsAdmin {
      });
     
     await reconciliateMembers([...memberData, newMember]);
+  }
+
+  /**
+   * Agrega una reservacion en el horario especificado para el miembro 
+   * especificado. Cualquier otra reservación del mismo miembro en el mismo 
+   * día es eliminada.
+   *
+   * La hoja de reservaciones modificada depende de la fecha en la que se 
+   * ejecuta esta función y y el numero del dia de la nueva reservación. 
+   * Si el dia de la reservacion es mayor que el dia especificado, se usa 
+   * la hoja del mes actual. De lo contrario se usa la hoja del mes siguiente.
+   *
+   * Arroja error si la hoja a modificar no existe.
+   * Arroja error si el número de reservaciones en el horario especificado
+   * ya esta al límite. 
+   * Arroja error si la reservación especificada ya existe.
+   */
+  async changeReservationHourForADay(args) {
+    const { sheetsAPI, db, clock } = this;
+    const { data: newReservationData } = boundary.getNewReservationFromUserInput(args);
+
+
+    await this.populateMemberTable();
+
+    const todayDateArray = clock.getFullDateArray();
+    const nextMonthDateArray = moveDateArrayToNextMonthStart(todayDateArray);
+    const todayNumero = todayDateArray[2];
+    const dateArray = newReservationData.diaNumero < todayNumero 
+      ? nextMonthDateArray 
+      : todayDateArray;  
+
+    const [ year, month ] = dateArray;
+    const sheetTitle = lib.getTimetableSheetName(year, month);
+    const { 
+      timeTableMissing, 
+      data: timeTableData,
+      reconciliateFn
+    } = await this.populateReservationTable(sheetTitle, dateArray);
+    
+    if (timeTableMissing)
+      throw new FatalError('SHEET_NOT_FOUND', { title: sheetTitle })
+
+    const newReservation = { 
+      ...convertDateToSlot(year, month, newReservationData.diaNumero, 0, 0),
+      hora: newReservationData.hora,
+      miembro: newReservationData.miembro
+    }
+
+    const newTimeTableData = 
+      await db.changeReservationHourForADay(newReservation);
+    await reconciliateFn(newTimeTableData);
   }
 }
 

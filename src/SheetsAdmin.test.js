@@ -310,3 +310,363 @@ describe('addNewMember', () => {
     });
   });
 });
+
+describe('changeReservationHourForADay', () => {
+  describe('happy path', () => {
+    const reconciliateReservations = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      loadTimeSlots: jest.fn(title => Promise.resolve({
+        data: [
+          { 
+            miembro: 'jeff',
+            dia: '23-Lun',
+            hora: '18:00',
+          }, { 
+            miembro: 'ben',
+            dia: '23-Lun',
+            hora: '18:00',
+          }
+        ],
+        reconciliateFn: reconciliateReservations
+      }))
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 21, 0, 0])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+
+    beforeAll(async () => {
+      await db.clear();
+      await admin.changeReservationHourForADay({ 
+        miembro: 'jeff', 
+        hora: '8:00', 
+        dia: 23 
+      });
+    });
+
+    it('calls sheetsAPI.loadTimeSlots with the correct title', async () => {
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1); 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
+    });
+
+    it('calls reconciliateFn with an array containing the changed reservation', () => {
+      expect(reconciliateReservations).toHaveBeenCalledTimes(1);
+      expect(reconciliateReservations).toHaveBeenCalledWith([
+          { 
+            miembro: 'jeff',
+            dia: '23-Lun',
+            hora: '08:00',
+          }, { 
+            miembro: 'ben',
+            dia: '23-Lun',
+            hora: '18:00',
+          }
+        ])
+    });
+  });
+
+  describe('when target hour is already full', () => {
+    const reconciliateReservations = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '17:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '17:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'alex',
+            nombre: 'Alex',
+            entrada: '17:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'paul',
+            nombre: 'Paul',
+            entrada: '17:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'john',
+            nombre: 'John',
+            entrada: '17:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'alice',
+            nombre: 'Alice',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'jenny',
+            nombre: 'Jenny',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'bill',
+            nombre: 'Bill',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'fred',
+            nombre: 'Fred',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'mary',
+            nombre: 'Mary',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'kevin',
+            nombre: 'Kevin',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      loadTimeSlots: jest.fn(title => Promise.resolve({
+        data: [
+            { 
+              miembro: 'jeff',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'ben',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'alex',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'paul',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'john',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'alice',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'jenny',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'bill',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'fred',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'mary',
+              dia: '25-Mié',
+              hora: '17:00',
+            }, { 
+              miembro: 'kevin',
+              dia: '25-Mié',
+              hora: '18:00',
+            }, { 
+              miembro: 'fred',
+              dia: '26-Mié',
+              hora: '18:00',
+            }, { 
+              miembro: 'mary',
+              dia: '26-Mié',
+              hora: '18:00',
+            }
+          ],
+        reconciliateFn: reconciliateReservations
+      }))
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 21, 0, 0])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+    let error;
+
+    beforeAll(async () => {
+      await db.clear();
+      try {
+        await admin.changeReservationHourForADay({ 
+          miembro: 'kevin', 
+          hora: '17:00', 
+          dia: 25 
+        });
+      } catch (e) {
+        error = e;
+      }
+      
+    });
+
+    it('throws a readable error', () => {
+      expect(error).toBeDefined(); 
+      expect(error).toMatchSnapshot(); 
+    });
+
+    it('does not call reconciliateFn', () => {
+      expect(reconciliateReservations).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when reservation already exists', () => {
+    const reconciliateReservations = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      loadTimeSlots: jest.fn(title => Promise.resolve({
+        data: [
+          { 
+            miembro: 'jeff',
+            dia: '23-Lun',
+            hora: '18:00',
+          }, { 
+            miembro: 'ben',
+            dia: '23-Lun',
+            hora: '18:00',
+          }
+        ],
+        reconciliateFn: reconciliateReservations
+      }))
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 21, 0, 0])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+
+    let error;
+
+    beforeAll(async () => {
+      await db.clear();
+      try {
+        await admin.changeReservationHourForADay({ 
+                miembro: 'jeff', 
+                hora: '18:00', 
+                dia: 23 
+              });
+      } catch (e) {
+        error = e;
+      }
+      
+    });
+
+    it('throws a readable error', () => {
+      expect(error).toBeDefined(); 
+      expect(error).toMatchSnapshot(); 
+    });
+
+    it('does not call reconciliateFn', () => {
+      expect(reconciliateReservations).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.only('when timetable has not been created yet', () => {
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      loadTimeSlots: jest.fn(title => Promise.resolve({
+        timeTableMissing: true
+      }))
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 29, 0, 0])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+
+    let error;
+
+    beforeAll(async () => {
+      await db.clear();
+      try {
+        await admin.changeReservationHourForADay({ 
+                miembro: 'jeff', 
+                hora: '18:00', 
+                dia: 1 
+              });
+      } catch (e) {
+        error = e;
+      }
+      
+    });
+
+    it('calls sheetsAPI.loadTimeSlots with the correct title', async () => {
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1); 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DEC-2020'); 
+    });
+
+    it('throws a readable error', () => {
+      expect(error).toBeDefined(); 
+      expect(error).toMatchSnapshot(); 
+    });
+  });
+});

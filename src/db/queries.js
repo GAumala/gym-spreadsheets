@@ -25,19 +25,11 @@ const insertChallengeStart = (data, db = knex) =>
 const insertChallengeEnd = (data, db = knex) => 
   db.table('challengeEnd').insert(data);
 const insertReservation = (data, db = knex) => {
-  if (data.length < 330)
+  if (!data.length || data.length < 330)
     return db.table('reservacion').insert(data);
 
   return db.batchInsert('reservacion', data, 330);
 }
-const deleteSpecificReservation = (reservacion, db = knex) =>
-  db.from('reservacion')
-    .where({ 
-      miembro: reservacion.miembro,
-      dia: reservacion.dia, 
-      hora: reservacion.hora,  
-    })
-    .delete();
 
 const getOrderedTimetable = (db = knex) =>
   db.from('reservacion')
@@ -121,13 +113,16 @@ const findDaysWithHourFull = (hora, db = knex) =>
     .having('count', '>', SLOT_CAPACITY - 1)
     .then(rows => rows.map(({ dia }) => dia))
 
-const findTempReservationtions = (dia, hora, limit, db = knex) => 
+const findMembersThatReservedAtSlot = (slot, db = knex) => 
   db.from('reservacion')
-    .select('miembro', 'dia', 'hora')
-    .where({ dia, hora })
-    .innerJoin('miembro', 'reservacion.miembro', 'miembro.id')
-    .andWhere('miembro.entrada', '<>', 'reservacion.hora')
-    .limit(limit)
+    .select('miembro')
+    .where({ dia: slot.dia, hora: slot.hora })
+    .then(rows => rows.map(({ miembro }) => miembro));
+
+const deleteMemberReservationsForDay = (miembro, dia, db = knex) => 
+  db.from('reservacion')
+    .where({ miembro, dia })
+    .delete();
 
 const createMonthReservations = monthSlots => 
   knex.transaction(async trx => {
@@ -174,7 +169,25 @@ const updateReservationsWithNewMember = (miembro, newSlots) =>
     };
   });
 
+const changeReservationHourForADay = newReservation => 
+  knex.transaction(async trx => {
+    const { miembro, dia } = newReservation;
+
+    const membersAlreadyReservedAtTargetSlot = 
+      await findMembersThatReservedAtSlot(newReservation, trx);
+    if (membersAlreadyReservedAtTargetSlot.length >= SLOT_CAPACITY)
+      throw new FatalError('SLOT_IS_FULL', newReservation);
+
+    if (membersAlreadyReservedAtTargetSlot.includes(miembro))
+      throw new FatalError('ALREADY_RESERVED', newReservation);
+
+    await deleteMemberReservationsForDay(miembro, dia, trx);
+    await insertReservation(newReservation, trx);
+    return getOrderedTimetable(trx);
+  });
+
 module.exports = { 
+  changeReservationHourForADay,
   checkMemberEntradaConstraint,
   clear, 
   createMonthReservations,

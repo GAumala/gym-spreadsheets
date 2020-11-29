@@ -42,7 +42,7 @@ const createUserInputBoundaryErrorMsg = (details) => {
         `\nEl campo '${fieldName}' solo permite números, se ingresó '${context.value}'.`;
 
     return msg + 
-      `\n'${context.value}' no es un valor permitido en el calmpo '${fieldName}' (tipo: ${type}).`
+      `\n'${context.value}' no es un valor permitido en el campo '${fieldName}' (tipo: ${type}).`
   }, msgStart);
 };
 
@@ -62,6 +62,10 @@ const getFatalErrorMsg = (key, params) => {
       return params.violations.map(({ dia, hora, count }) => 
         `Hay demasiadas reservas (${count}) para la fecha ${dia} ${hora}. Por favor remueve alguna reserva temporal.`)
         .join('\n')
+    case 'SLOT_IS_FULL': 
+      return `No se pueden agregar mas miembros para el día ${params.dia} a las ${params.hora}. Por favor busca otro horario.`;
+    case 'ALREADY_RESERVED': 
+      return `Este miembro ya reservó anteriormente para el día ${params.dia} a las ${params.hora}.`;    
     default: 
       `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
   }

@@ -3,6 +3,7 @@ const {
   memberArraySchema, 
   memberIdentificationArraySchema,
   newMemberSchema,
+  newReservationSchema,
   timeSlotArraySchema
 } = require('./schemas.js')
 const {
@@ -148,11 +149,22 @@ const getNewMemberFromUserInput = input =>
     input
   });
 
+const getNewReservationFromUserInput = input => 
+  runUserInputBoundary({
+    schema: newReservationSchema,
+    input: {
+      miembro: input.miembro,
+      diaNumero: input.dia,
+      hora: getAsHourString(input.hora)
+    }
+  });
+
 module.exports = {
   getChallengeDataFromSheet,
   getMemberDataFromSheet,
   getMemberIdDataFromSheet,
   getNewMemberFromUserInput,
+  getNewReservationFromUserInput,
   getTimetableDataFromSheet,
   translateChallengeKey,
   translateMemberKey,

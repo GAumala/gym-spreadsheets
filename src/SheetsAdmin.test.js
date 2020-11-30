@@ -614,7 +614,7 @@ describe('changeReservationHourForADay', () => {
     });
   });
 
-  describe.only('when timetable has not been created yet', () => {
+  describe('when timetable has not been created yet', () => {
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
         data: [
@@ -667,6 +667,117 @@ describe('changeReservationHourForADay', () => {
     it('throws a readable error', () => {
       expect(error).toBeDefined(); 
       expect(error).toMatchSnapshot(); 
+    });
+  });
+});
+
+describe('listMembersThatReservedAtTime', () => {
+  describe('happy path with empty arguments', () => {
+    const reconciliateReservations = jest.fn();
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'tom',
+            nombre: 'Tom',
+            entrada: '19:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      loadTimeSlots: jest.fn(title => Promise.resolve({
+        data: [
+          { 
+            miembro: 'jeff',
+            dia: '23-Lun',
+            hora: '18:00',
+          }, { 
+            miembro: 'ben',
+            dia: '23-Lun',
+            hora: '18:00',
+          }, { 
+            miembro: 'tom',
+            dia: '23-Lun',
+            hora: '19:00',
+          }, { 
+            miembro: 'jeff',
+            dia: '24-Mar',
+            hora: '06:00',
+          }, { 
+            miembro: 'ben',
+            dia: '24-Mar',
+            hora: '18:00',
+          }, { 
+            miembro: 'tom',
+            dia: '23-Mar',
+            hora: '19:00',
+          }
+        ],
+        reconciliateFn: reconciliateReservations
+      }))
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 23, 17, 15])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+
+    beforeAll(async () => {
+      await db.clear();
+    });
+
+    it('uses next training hour relative to current time when no arguments are specified', async () => {
+      const res = await admin.listMembersThatReservedAtTime({ });
+      expect(res).toEqual([
+        { 
+          nombre: 'Jeff',
+          dia: '23-Lun',
+          hora: '18:00',
+        }, { 
+          nombre: 'Ben',
+          dia: '23-Lun',
+          hora: '18:00',
+        }
+      ]);
+    });
+
+    it('uses both day and hour when they are specified', async () => {
+      const res = await admin.listMembersThatReservedAtTime({ 
+        dia: 24, hora: '18:00' 
+      });
+      expect(res).toEqual([
+        { 
+          nombre: 'Ben',
+          dia: '24-Mar',
+          hora: '18:00',
+        }
+      ]);
+    });
+
+    it('uses current time day when only hour is specified', async () => {
+      const res = await admin.listMembersThatReservedAtTime({ 
+        hora: '19:00' 
+      });
+      expect(res).toEqual([
+        { 
+          nombre: 'Tom',
+          dia: '23-Lun',
+          hora: '19:00',
+        }
+      ]);
     });
   });
 });

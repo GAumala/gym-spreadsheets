@@ -57,6 +57,7 @@ const pickChallengeWinners = (startRows, endRows) =>
 
 const setMemberRows = rows => 
   knex.transaction(async trx => {
+    await clearReservations(trx);
     await clearMembers(trx);
     await insertMiembro(rows, trx);
 
@@ -118,6 +119,12 @@ const findMembersThatReservedAtSlot = (slot, db = knex) =>
     .select('miembro')
     .where({ dia: slot.dia, hora: slot.hora })
     .then(rows => rows.map(({ miembro }) => miembro));
+
+const getReservationsAtSlot = (slot, db = knex) => 
+  db.from('reservacion')
+    .select('dia', 'hora', 'nombre')
+    .where({ dia: slot.dia, hora: slot.hora })
+    .innerJoin('miembro', 'reservacion.miembro', 'miembro.id');
 
 const deleteMemberReservationsForDay = (miembro, dia, db = knex) => 
   db.from('reservacion')
@@ -192,6 +199,7 @@ module.exports = {
   clear, 
   createMonthReservations,
   findMiembroById, 
+  getReservationsAtSlot,
   insertMiembro,
   insertNewMember,
   pickChallengeWinners,

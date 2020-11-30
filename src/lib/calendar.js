@@ -7,6 +7,15 @@ const getFirstDayOfMonth = (year, month) => {
   return date.getDay();
 }
 
+const getWeekDay = (year, month, monthDay) => {
+  const date = new Date()
+  date.setYear(year);
+  date.setMonth(month - 1);
+  date.setDate(monthDay);
+
+  return date.getDay();
+}
+
 const getNumberOfDaysInMonth = (year, month) => {
 
   const date = new Date()
@@ -31,4 +40,5 @@ module.exports = {
   getFirstDayOfMonth,
   getNextMonth,
   getNumberOfDaysInMonth,
+  getWeekDay
 }

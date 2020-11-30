@@ -4,7 +4,8 @@ const {
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,
-  timeSlotArraySchema
+  timeSlotArraySchema,
+  timeSchema
 } = require('./schemas.js')
 const {
   SheetBoundaryError,
@@ -24,6 +25,9 @@ const getAsString = (value) => {
 }
 
 const getAsHourString = (value) => {
+  if (value === undefined)
+    return undefined;
+
   const stringValue = getAsString(value);
   if (badHourFormatRegex.test(stringValue))
     return '0' + stringValue;
@@ -159,12 +163,22 @@ const getNewReservationFromUserInput = input =>
     }
   });
 
+const getTimeFromUserInput = input => 
+  runUserInputBoundary({
+    schema: timeSchema,
+    input: {
+      diaNumero: input.dia,
+      hora: getAsHourString(input.hora)
+    }
+  });
+
 module.exports = {
   getChallengeDataFromSheet,
   getMemberDataFromSheet,
   getMemberIdDataFromSheet,
   getNewMemberFromUserInput,
   getNewReservationFromUserInput,
+  getTimeFromUserInput,
   getTimetableDataFromSheet,
   translateChallengeKey,
   translateMemberKey,

@@ -96,7 +96,7 @@ const breakTimeSlotsWithDate = (slots, dateArray) => {
     const nextSlot = slots[i + 1];
 
   const isAfterCurrentSlot = 
-    compareTimeSlots(dateAsSlot, currentSlot) === 1;
+    compareTimeSlots(dateAsSlot, currentSlot) > -1;
 
   const isBeforeNextSlot = 
     compareTimeSlots(dateAsSlot, nextSlot) === -1;

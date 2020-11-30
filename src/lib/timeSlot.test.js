@@ -271,6 +271,79 @@ describe('breakTimeSlotsWithDate', () => {
       { dia: '27-Vie', hora: '09:30' }
     ]);
   });
+  
+  it('if current time matches any slot, that slot goes in past', () => {
+    const slots = [
+      { dia: '25-Mié', hora: '09:30' },
+      { dia: '26-Jue', hora: '07:00' },
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' },
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' },
+    ]
+
+    const dateArray = [2020, 11, 26, 9, 30];
+    const { past, future } = breakTimeSlotsWithDate(slots, dateArray);
+    expect(past).toEqual([
+      { dia: '25-Mié', hora: '09:30' },
+      { dia: '26-Jue', hora: '07:00' },
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' }
+    ]);
+    expect(future).toEqual([
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' }
+    ]);
+  });
+
+  it('if current time matches first slot, the first goes on past', () => {
+    const slots = [
+      { dia: '26-Jue', hora: '07:00' },
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' },
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' },
+    ]
+
+    const dateArray = [2020, 11, 26, 7, 0];
+    const { past, future } = breakTimeSlotsWithDate(slots, dateArray);
+    expect(past).toEqual([
+      { dia: '26-Jue', hora: '07:00' },
+    ]);
+    expect(future).toEqual([
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' },
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' }
+    ]);
+  });
+
+  it('if current time matches last slot, the last goes on past', () => {
+    const slots = [
+      { dia: '26-Jue', hora: '07:00' },
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' },
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' },
+    ]
+
+    const dateArray = [2020, 11, 27, 9, 30];
+    const { past, future } = breakTimeSlotsWithDate(slots, dateArray);
+    expect(past).toEqual([
+      { dia: '26-Jue', hora: '07:00' },
+      { dia: '26-Jue', hora: '08:00' },
+      { dia: '26-Jue', hora: '09:30' },
+      { dia: '27-Vie', hora: '07:00' },
+      { dia: '27-Vie', hora: '08:00' },
+      { dia: '27-Vie', hora: '09:30' }
+    ]);
+    expect(future).toEqual([]);
+  });
 
   it('handles a date in the past', () => {
     const slots = [

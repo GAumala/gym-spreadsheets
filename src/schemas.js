@@ -45,6 +45,12 @@ const newReservationSchema = Joi.object({
           .required()
 });
 
+const timeSchema = Joi.object({
+  diaNumero: Joi.number().positive().integer().max(31),
+  hora: Joi.any()
+          .valid(...trainingHours)
+})
+
 const challengeSchema = Joi.object({
   id: Joi.string()
         .pattern(memberIDRegex).required(),
@@ -73,5 +79,6 @@ module.exports = {
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,
-  timeSlotArraySchema
+  timeSlotArraySchema,
+  timeSchema
 };

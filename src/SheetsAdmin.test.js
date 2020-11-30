@@ -49,13 +49,13 @@ describe('addNewMember', () => {
 
     beforeAll(async () => {
       await db.clear();
-      return admin.addNewMember({ nombre: 'Alex', entrada: '19:00' });
+      return admin.addNewMember({ name: 'Alex', hour: '19:00' });
     })
 
     it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
       expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(2) 
       expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DEC-2020'); 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('calls reconciliateFn with the updated members list', async () => {
@@ -118,13 +118,13 @@ describe('addNewMember', () => {
 
     beforeAll(async () => {
       await db.clear();
-      return admin.addNewMember({ nombre: 'Jenny', entrada: '08:00' });
+      return admin.addNewMember({ name: 'Jenny', hour: '08:00' });
     })
 
     it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
       expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(2) 
       expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DEC-2020'); 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('calls reconciliateFn with the updated members list', async () => {
@@ -273,7 +273,7 @@ describe('addNewMember', () => {
 
     beforeAll(async () => {
       await db.clear();
-      return admin.addNewMember({ nombre: 'David', entrada: '17:00' });
+      return admin.addNewMember({ name: 'David', hour: '17:00' });
     })
 
     it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
@@ -356,9 +356,9 @@ describe('changeReservationHourForADay', () => {
     beforeAll(async () => {
       await db.clear();
       await admin.changeReservationHourForADay({ 
-        miembro: 'jeff', 
-        hora: '8:00', 
-        dia: 23 
+        member: 'jeff', 
+        hour: '8:00', 
+        day: 23 
       });
     });
 
@@ -527,9 +527,9 @@ describe('changeReservationHourForADay', () => {
       await db.clear();
       try {
         await admin.changeReservationHourForADay({ 
-          miembro: 'kevin', 
-          hora: '17:00', 
-          dia: 25 
+          member: 'kevin', 
+          hour: '17:00', 
+          day: 25 
         });
       } catch (e) {
         error = e;
@@ -594,10 +594,10 @@ describe('changeReservationHourForADay', () => {
       await db.clear();
       try {
         await admin.changeReservationHourForADay({ 
-                miembro: 'jeff', 
-                hora: '18:00', 
-                dia: 23 
-              });
+          member: 'jeff', 
+          hour: '18:00', 
+          day: 23 
+        });
       } catch (e) {
         error = e;
       }
@@ -649,10 +649,10 @@ describe('changeReservationHourForADay', () => {
       await db.clear();
       try {
         await admin.changeReservationHourForADay({ 
-                miembro: 'jeff', 
-                hora: '18:00', 
-                dia: 1 
-              });
+          member: 'jeff', 
+          hour: '18:00', 
+          day: 1 
+        });
       } catch (e) {
         error = e;
       }
@@ -661,7 +661,7 @@ describe('changeReservationHourForADay', () => {
 
     it('calls sheetsAPI.loadTimeSlots with the correct title', async () => {
       expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DEC-2020'); 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('throws a readable error', () => {
@@ -739,9 +739,23 @@ describe('listMembersThatReservedAtTime', () => {
       await db.clear();
     });
 
+    it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
+      sheetsAPI.loadTimeSlots.mockClear();
+
+      await admin.listMembersThatReservedAtTime({ });
+
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1) 
+      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
+    });
+
+    it('returns a readable message with member names', async () => {
+      const res = await admin.listMembersThatReservedAtTime({ });
+      expect(res.message).toMatchSnapshot();
+    });
+
     it('uses next training hour relative to current time when no arguments are specified', async () => {
       const res = await admin.listMembersThatReservedAtTime({ });
-      expect(res).toEqual([
+      expect(res.data).toEqual([
         { 
           nombre: 'Jeff',
           dia: '23-Lun',
@@ -756,9 +770,9 @@ describe('listMembersThatReservedAtTime', () => {
 
     it('uses both day and hour when they are specified', async () => {
       const res = await admin.listMembersThatReservedAtTime({ 
-        dia: 24, hora: '18:00' 
+        day: 24, hour: '18:00' 
       });
-      expect(res).toEqual([
+      expect(res.data).toEqual([
         { 
           nombre: 'Ben',
           dia: '24-Mar',
@@ -769,9 +783,9 @@ describe('listMembersThatReservedAtTime', () => {
 
     it('uses current time day when only hour is specified', async () => {
       const res = await admin.listMembersThatReservedAtTime({ 
-        hora: '19:00' 
+        hour: '19:00' 
       });
-      expect(res).toEqual([
+      expect(res.data).toEqual([
         { 
           nombre: 'Tom',
           dia: '23-Lun',

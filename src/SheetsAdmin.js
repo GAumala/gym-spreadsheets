@@ -7,6 +7,7 @@ const {
 const {
   getMonthShortName
 } = require('./lib/dateFormatters.js');
+const getMessage = require('./messages.js');
 const {
   convertDateToSlot,
   createMonthSlots,
@@ -14,6 +15,7 @@ const {
   breakTimeSlotsWithDate 
 } = require('./lib/timeSlot.js');
 const {
+  dateArrayToReadableString,
   moveDateArrayToFutureTime,
   moveDateArrayToMinuteEarlier,
   moveDateArrayToNextMonthStart,
@@ -160,8 +162,9 @@ class SheetsAdmin {
     const { sheetsAPI, db, clock } = this;
     const { data: newMemberData } = boundary.getNewMemberFromUserInput(args);
     const newMember = { 
-      ...newMemberData, 
-      id: lib.createUserID(newMemberData.nombre),
+      nombre: newMemberData.name, 
+      entrada: newMemberData.hour,
+      id: newMemberData.id || lib.createUserID(newMemberData.name),
       email: '',
       lesiones: ''
     };
@@ -208,7 +211,7 @@ class SheetsAdmin {
     await populateMemberTable(this);
 
     const dateArray = 
-      getDateArrayBeforeDayNumber(clock, newReservationData.diaNumero);
+      getDateArrayBeforeDayNumber(clock, newReservationData.day);
 
     const { 
       timeTableMissing, 
@@ -222,9 +225,9 @@ class SheetsAdmin {
 
     const [ year, month ] = dateArray;
     const newReservation = { 
-      ...convertDateToSlot(year, month, newReservationData.diaNumero, 0, 0),
-      hora: newReservationData.hora,
-      miembro: newReservationData.miembro
+      ...convertDateToSlot(year, month, newReservationData.day, 0, 0),
+      hora: newReservationData.hour,
+      miembro: newReservationData.member
     }
 
     const newTimeTableData = 
@@ -259,9 +262,18 @@ class SheetsAdmin {
       this, moveDateArrayToMinuteEarlier(dateArray));
     
     if (timeTableMissing)
-      throw new FatalError('SHEET_NOT_FOUND', { title: sheetTitle })
+      throw new FatalError('SHEET_NOT_FOUND', { title: sheetTitle });
 
-    return await db.getReservationsAtSlot(slot)
+    const readableDate = dateArrayToReadableString(dateArray);
+    const reservations = await db.getReservationsAtSlot(slot);
+    const members = reservations.map(({ nombre }) => nombre);
+    const message = reservations.length === 0 
+      ? getMessage('NO_RESERVATIONS', {date: readableDate}) 
+      : getMessage('LIST_RESERVATIONS', {date: readableDate, members});
+
+    return {
+      message, data: reservations
+    };
   }
 }
 

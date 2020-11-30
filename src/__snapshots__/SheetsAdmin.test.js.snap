@@ -301,4 +301,14 @@ exports[`changeReservationHourForADay when reservation already exists throws a r
 
 exports[`changeReservationHourForADay when target hour is already full throws a readable error 1`] = `[FatalError: No se pueden agregar mas miembros para el día 25-Mié a las 17:00. Por favor busca otro horario.]`;
 
-exports[`changeReservationHourForADay when timetable has not been created yet throws a readable error 1`] = `[FatalError: La hoja DEC-2020 no existe.]`;
+exports[`changeReservationHourForADay when timetable has not been created yet throws a readable error 1`] = `[FatalError: La hoja DIC-2020 no existe.]`;
+
+exports[`listMembersThatReservedAtTime happy path with empty arguments returns a readable message with member names 1`] = `
+"Fecha: Lunes, 23 de Noviembre 18:00
+Miembros:
+
+Jeff
+Ben
+
+2 en total."
+`;

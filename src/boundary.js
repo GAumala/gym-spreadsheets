@@ -150,16 +150,18 @@ const getTimetableDataFromSheet = (metadata, sheetRows) =>
 const getNewMemberFromUserInput = input => 
   runUserInputBoundary({
     schema: newMemberSchema,
-    input
+    input: {
+      ...input,
+      hour: getAsHourString(input.hour)
+    }
   });
 
 const getNewReservationFromUserInput = input => 
   runUserInputBoundary({
     schema: newReservationSchema,
     input: {
-      miembro: input.miembro,
-      diaNumero: input.dia,
-      hora: getAsHourString(input.hora)
+      ...input,
+      hour: getAsHourString(input.hour)
     }
   });
 
@@ -167,8 +169,8 @@ const getTimeFromUserInput = input =>
   runUserInputBoundary({
     schema: timeSchema,
     input: {
-      diaNumero: input.dia,
-      hora: getAsHourString(input.hora)
+      day: input.day,
+      hour: getAsHourString(input.hour)
     }
   });
 

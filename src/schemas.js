@@ -30,24 +30,27 @@ const memberSchema = Joi.object({
 const memberArraySchema = Joi.array().items(memberSchema);
 
 const newMemberSchema = Joi.object({
-  nombre: Joi.string().required(),
-  entrada: Joi.any()
+  id: Joi.string()
+        .pattern(memberIDRegex)
+        .allow(''),
+  name: Joi.string().required(),
+  hour: Joi.any()
               .valid(...trainingHours)
               .required()
 });
 
 const newReservationSchema = Joi.object({
-  miembro: Joi.string()
+  member: Joi.string()
         .pattern(memberIDRegex).required(),
-  diaNumero: Joi.number().positive().integer().max(31).required(),
-  hora: Joi.any()
+  day: Joi.number().positive().integer().max(31).required(),
+  hour: Joi.any()
           .valid(...trainingHours)
           .required()
 });
 
 const timeSchema = Joi.object({
-  diaNumero: Joi.number().positive().integer().max(31),
-  hora: Joi.any()
+  day: Joi.number().positive().integer().max(31),
+  hour: Joi.any()
           .valid(...trainingHours)
 })
 

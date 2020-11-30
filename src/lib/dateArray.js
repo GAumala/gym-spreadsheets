@@ -1,10 +1,7 @@
+const { parseHour, formatHour } = require('./hour.js')
 const calendar = require('./calendar.js');
 const { trainingHours } = require('./constants.js');
-
-const parseTrainingHour = time => {
-  const [hourString, minuteString] = time.split(':');
-  return [parseInt(hourString), parseInt(minuteString)];
-}
+const { getMonthLongName, getDayLongName } = require('./dateFormatters.js');
 
 const moveDateArrayToNextMonthStart = dateArray => {
   const [year, month] = dateArray;
@@ -17,7 +14,7 @@ const moveDateArrayToNextTrainingHour = dateArray => {
   const isGymOpen = calendar.getWeekDay(...dateArray) !== 0
   if (isGymOpen)
     for (let i = 0; i < trainingHours.length; i++) {
-      const [tHour, tMinute] = parseTrainingHour(trainingHours[i]);
+      const [tHour, tMinute] = parseHour(trainingHours[i]);
       if (hour < tHour || (hour === tHour && minute <= tMinute))
         return [year, month, day, tHour, tMinute];
     }
@@ -45,18 +42,18 @@ const moveDateArrayToFutureDay = (dateArray, targetDay) => {
 }
 
 const moveDateArrayToFutureTime = (dateArray, time) => {
-  if (!time.hora)
+  if (!time.hour)
     return dateArray;
 
-  const [specifiedHour, specifiedMinute] = parseTrainingHour(time.hora) 
+  const [specifiedHour, specifiedMinute] = parseHour(time.hour) 
 
   const [year, month, day, minute, hour] = dateArray;
   const newDateArray = [year, month, day, specifiedHour, specifiedMinute];
 
-  if (!time.diaNumero)
+  if (!time.day)
     return newDateArray;
 
-  return moveDateArrayToFutureDay(newDateArray, time.diaNumero);
+  return moveDateArrayToFutureDay(newDateArray, time.day);
 }
 
 const moveDateArrayToMinuteEarlier = (dateArray) => {
@@ -83,7 +80,16 @@ const moveDateArrayToMinuteEarlier = (dateArray) => {
   }
 }
 
+const dateArrayToReadableString = (dateArray) => {
+  const [year, month, day, hour, minute] = dateArray;
+  const readableMonth = getMonthLongName(month);
+  const readableWeekDay = getDayLongName(calendar.getWeekDay(...dateArray));
+  const readableHour = formatHour(hour, minute);
+  return `${readableWeekDay}, ${day} de ${readableMonth} ${readableHour}`;
+}
+
 module.exports = {
+  dateArrayToReadableString,
   moveDateArrayToMinuteEarlier,
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,

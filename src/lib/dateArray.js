@@ -46,12 +46,18 @@ const moveDateArrayToFutureTime = (dateArray, time) => {
     return dateArray;
 
   const [specifiedHour, specifiedMinute] = parseHour(time.hour) 
-
-  const [year, month, day, minute, hour] = dateArray;
+  const [year, month, day, hour, minute] = dateArray;
   const newDateArray = [year, month, day, specifiedHour, specifiedMinute];
 
-  if (!time.day)
+  if (!time.day) {
+    if (specifiedHour < hour || (specifiedHour === hour && specifiedMinute < minute)) {
+      const lastMonthDay = calendar.getNumberOfDaysInMonth(year, month);
+      const nextDay = day === lastMonthDay ? 1 : day + 1;
+      return moveDateArrayToFutureDay(newDateArray, nextDay);
+    }
+
     return newDateArray;
+  }
 
   return moveDateArrayToFutureDay(newDateArray, time.day);
 }

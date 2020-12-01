@@ -151,7 +151,8 @@ const getNewMemberFromUserInput = input =>
   runUserInputBoundary({
     schema: newMemberSchema,
     input: {
-      ...input,
+      id: input.id,
+      name: input.name,
       hour: getAsHourString(input.hour)
     }
   });
@@ -160,7 +161,8 @@ const getNewReservationFromUserInput = input =>
   runUserInputBoundary({
     schema: newReservationSchema,
     input: {
-      ...input,
+      member: input.member,
+      day: input.day,
       hour: getAsHourString(input.hour)
     }
   });

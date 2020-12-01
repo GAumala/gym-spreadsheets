@@ -77,6 +77,7 @@ class SheetAPIError extends Error {
     this.name = 'SheetAPIError'
     this.message = joiError.message
     this.actualError = actualError.details;
+    this.isCustom = true;
   }
   
   toJSON() {
@@ -98,6 +99,7 @@ class SheetBoundaryError extends Error {
     this.name = 'SheetBoundaryError'
     this.message = message;
     this.details = joiError.details;
+    this.isCustom = true;
   }
   
   toJSON() {
@@ -120,6 +122,7 @@ class UserInputBoundaryError extends Error {
     this.name = 'UserInputBoundaryError'
     this.message = message;
     this.details = joiError.details;
+    this.isCustom = true;
   }
   
   toJSON() {
@@ -140,6 +143,7 @@ class FatalError extends Error {
     super(msg)
     this.name = 'FatalError'
     this.message = msg;
+    this.isCustom = true;
   }
   
   toJSON() {

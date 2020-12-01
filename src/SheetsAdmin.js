@@ -98,7 +98,8 @@ class SheetsAdmin {
     const original = membersSheet.data;
     const updated = lib.setMissingUserIDs(original);
 
-    return membersSheet.reconciliateFn(updated);
+    await membersSheet.reconciliateFn(updated);
+    return {};
   }
 
   /**
@@ -149,6 +150,7 @@ class SheetsAdmin {
     const slots = createMonthSlots(year, month);
     const reservations = await db.createMonthReservations(slots);
     await reconciliateFn(reservations);
+    return {};
   }
 
 
@@ -187,6 +189,7 @@ class SheetsAdmin {
      });
     
     await reconciliateMembers([...memberData, newMember]);
+    return {};
   }
 
   /**
@@ -233,6 +236,7 @@ class SheetsAdmin {
     const newTimeTableData = 
       await db.changeReservationHourForADay(newReservation);
     await reconciliateFn(newTimeTableData);
+    return {};
   }
 
   /**

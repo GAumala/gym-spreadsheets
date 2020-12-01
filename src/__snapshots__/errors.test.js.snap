@@ -7,5 +7,5 @@ La columna 'NOMBRE' de la fila #3 no debe estar vacía."
 
 exports[`SheetBoundaryError uses Joi error data to create excluded value error msg 1`] = `
 "Por favor revisa los datos ingresados en el documento 'Test Document'.
-La columna 'ENTRADA' solo permite valores [06:00,07:00,08:00,09:30,11:00,12:00,17:00,18:00,19:00], pero la fila #2 contiene '13:00'."
+La columna 'HORARIO' solo permite valores [06:00,07:00,08:00,09:30,11:00,12:00,17:00,18:00,19:00], pero la fila #2 contiene '13:00'."
 `;

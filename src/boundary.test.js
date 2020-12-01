@@ -18,17 +18,17 @@ describe('getMemberDataFromSheet', () => {
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
        LESIONES: undefined, 
-       ENTRADA: '07:00'},
+       HORARIO: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
        LESIONES: null, 
-       ENTRADA: '07:00'},
+       HORARIO: '07:00'},
       {ID: 'nestor_ponce', 
        NOMBRE: 'Nestor Ponce', 
        EMAIL: 'nponce@mail.com', 
        LESIONES: '', 
-       ENTRADA: '12:00'},
+       HORARIO: '12:00'},
     ];
 
     const expectedList = [
@@ -57,7 +57,7 @@ describe('getMemberDataFromSheet', () => {
       {NOMBRE: 'Nestor Ponce', 
        EMAIL: 'nponce@mail.com', 
        LESIONES: '', 
-       ENTRADA: '12:00'},
+       HORARIO: '12:00'},
     ];
 
     const { translateKey } = getMemberDataFromSheet(sheetMetadata, rows);
@@ -70,16 +70,16 @@ describe('getMemberDataFromSheet', () => {
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
        LESIONES: undefined, 
-       ENTRADA: '07:00'},
+       HORARIO: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
        LESIONES: null, 
-       ENTRADA: '07:00'},
+       HORARIO: '07:00'},
       {NOMBRE: '', 
        EMAIL: 'nponce@mail.com', 
        LESIONES: '', 
-       ENTRADA: '12:00'}
+       HORARIO: '12:00'}
     ];
 
     expect(() => getMemberDataFromSheet(sheetMetadata, rows))

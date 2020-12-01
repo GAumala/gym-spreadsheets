@@ -40,7 +40,7 @@ const translateMemberKey = key => {
     case 'id': return 'ID';
     case 'nombre': return 'NOMBRE';
     case 'email': return 'EMAIL';
-    case 'entrada': return 'ENTRADA';
+    case 'entrada': return 'HORARIO';
     case 'lesiones': return 'LESIONES';
     default: return key;
   }
@@ -112,7 +112,7 @@ const getMemberDataFromSheet = (metadata, sheetRows) =>
       id: getAsString(row.ID),
       nombre: getAsString(row.NOMBRE),
       email: getAsString(row.EMAIL),
-      entrada: getAsHourString(row.ENTRADA),
+      entrada: getAsHourString(row.HORARIO),
       lesiones: getAsString(row.LESIONES)
     }),
     translateKeyFn: translateMemberKey,

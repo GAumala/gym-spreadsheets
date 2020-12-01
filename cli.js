@@ -84,12 +84,15 @@ require('yargs')
         describe: "A string a member's id"
       })
       .example('$0 members add --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and a generated id')
-      .example('$0 members add --id carlos_sanchez1 --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and id "carlos_sanchez1"'),
+      .example('$0 members add --id carlos_sanchez1 --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and id "carlos_sanchez1"')
+      .example('$0 members set-ids', 'Sets missing user IDs in the members sheet'),
     argv => 
       runCLIProgram(() => {
         switch (argv.operation) {
           case "add":
             return admin.addNewMember(argv);
+          case "set-ids":
+            return admin.setMissingUserIDs(argv);
           default:
             return Promise.reject({ 
               isCustom: true, 

@@ -4,6 +4,76 @@ const SheetsAdmin = require('./SheetsAdmin.js');
 
 afterAll(() => dbConnection.destroy());
 
+describe('setMissingUserIDs', () => {
+  describe('happy path', () => {
+    const reconciliateMembers = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMemberIDs: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: '',
+            nombre: 'Víctor Garzón',
+            entrada: '06:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: '',
+            nombre: 'Andrés Coello',
+            entrada: '06:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'gonzalo_quezada1',
+            nombre: 'Gonzálo Quezada',
+            entrada: '06:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: reconciliateMembers
+      }))
+    };
+    const clock = {}
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+    
+    beforeAll(async () => {
+      await db.clear();
+      return admin.setMissingUserIDs({});
+    });
+
+    it('calls sheetsAPI.loadMemberIDs only once', () => {
+      expect(sheetsAPI.loadMemberIDs).toHaveBeenCalledTimes(1)
+    });
+
+    it('calls reconciliateFn with the member rows with updated ids', () => {
+      expect(reconciliateMembers).toHaveBeenCalledTimes(1)
+
+      const newMemberData = reconciliateMembers.mock.calls[0][0];
+      expect(newMemberData).toEqual([
+        { 
+          id: 'victor_garzon',
+          nombre: 'Víctor Garzón',
+          entrada: '06:00',
+          email: '',
+          lesiones: '',
+        }, { 
+          id: 'andres_coello',
+          nombre: 'Andrés Coello',
+          entrada: '06:00',
+          email: '',
+          lesiones: '',
+        }, { 
+          id: 'gonzalo_quezada1',
+          nombre: 'Gonzálo Quezada',
+          entrada: '06:00',
+          email: '',
+          lesiones: '',
+        }
+      ])
+    });
+  });
+});
+
 describe('addNewMember', () => {
   describe('happy path with two timetables', () => {
     const reconciliateMembers = jest.fn(() => Promise.resolve());

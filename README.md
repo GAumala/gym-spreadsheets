@@ -18,7 +18,7 @@ with the service account created in step 1.
 ```
 {
   "timetable":"<ID>",
-  "members":"<ID>",
+  "members":"<ID>"
 }
 ```
 
@@ -37,4 +37,14 @@ Pull updates with git:
 
 ```
 git pull origin master
+```
+
+## Usage
+
+Run the `cli.js` file with Node.js. 
+
+```
+node cli.js --help
+node cli.js members --help
+node cli.js reservations --help
 ```

@@ -795,3 +795,93 @@ describe('listMembersThatReservedAtTime', () => {
     });
   });
 });
+
+describe('createTimeTableSheet', () => {
+  describe('happy path', () => {
+    const reconciliateReservations = jest.fn();
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: [
+          { 
+            id: 'jeff',
+            nombre: 'Jeff',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'ben',
+            nombre: 'Ben',
+            entrada: '18:00',
+            email: '',
+            lesiones: '',
+          }, { 
+            id: 'tom',
+            nombre: 'Tom',
+            entrada: '19:00',
+            email: '',
+            lesiones: '',
+          }
+        ],
+        reconciliateFn: jest.fn(() => Promise.resolve())
+      })),
+      createTimeTableSheet: jest.fn(title => Promise.resolve({
+        data: [],
+        reconciliateFn: reconciliateReservations
+      }))
+    };
+
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })  
+
+    beforeEach(async () => {
+      await db.clear();
+    })
+
+    describe('without flags', () => {
+      beforeAll(async () => {
+        sheetsAPI.createTimeTableSheet.mockClear();
+        reconciliateReservations.mockClear();
+
+        await admin.createTimeTableSheet({});
+      });
+
+      it('calls sheetsAPI.createTimeTableSheet with the correct titles', async () => {
+
+        expect(sheetsAPI.createTimeTableSheet).toHaveBeenCalledTimes(1) 
+        expect(sheetsAPI.createTimeTableSheet).toHaveBeenCalledWith('DIC-2020'); 
+      });
+
+      it('calls reconciliateFn with the full generated timetable', async () => {
+        expect(reconciliateReservations).toHaveBeenCalledTimes(1) 
+
+        const timeTable = reconciliateReservations.mock.calls[0][0];
+        expect(timeTable).toHaveLength(81); // (31 - 4) * 3
+        expect(timeTable).toMatchSnapshot();
+      });
+    });
+
+    describe('with the this-month flag', () => {
+      beforeAll(async () => {
+        sheetsAPI.createTimeTableSheet.mockClear();
+        reconciliateReservations.mockClear();
+
+        await admin.createTimeTableSheet({ ['this-month']: true });
+      });
+
+      it('calls sheetsAPI.createTimeTableSheet with the correct titles', async () => {
+
+        expect(sheetsAPI.createTimeTableSheet).toHaveBeenCalledTimes(1) 
+        expect(sheetsAPI.createTimeTableSheet).toHaveBeenCalledWith('NOV-2020'); 
+      });
+
+      it('calls reconciliateFn with the full generated timetable', async () => {
+        expect(reconciliateReservations).toHaveBeenCalledTimes(1) 
+
+        const timeTable = reconciliateReservations.mock.calls[0][0];
+        expect(timeTable).toHaveLength(75); // (30 - 5) * 3 
+      });
+    });
+  });
+});

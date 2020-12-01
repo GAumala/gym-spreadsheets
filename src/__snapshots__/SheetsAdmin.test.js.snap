@@ -303,6 +303,416 @@ exports[`changeReservationHourForADay when target hour is already full throws a 
 
 exports[`changeReservationHourForADay when timetable has not been created yet throws a readable error 1`] = `[FatalError: La hoja DIC-2020 no existe.]`;
 
+exports[`createTimeTableSheet happy path without flags calls reconciliateFn with the full generated timetable 1`] = `
+Array [
+  Object {
+    "dia": "01-Mar",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "01-Mar",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "01-Mar",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "02-Mié",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "02-Mié",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "02-Mié",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "03-Jue",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "03-Jue",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "03-Jue",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "04-Vie",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "04-Vie",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "04-Vie",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "05-Sáb",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "05-Sáb",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "05-Sáb",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "07-Lun",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "07-Lun",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "07-Lun",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "08-Mar",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "08-Mar",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "08-Mar",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "09-Mié",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "09-Mié",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "09-Mié",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "10-Jue",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "10-Jue",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "10-Jue",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "11-Vie",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "11-Vie",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "11-Vie",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "12-Sáb",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "12-Sáb",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "12-Sáb",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "14-Lun",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "14-Lun",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "14-Lun",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "15-Mar",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "15-Mar",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "15-Mar",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "16-Mié",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "16-Mié",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "16-Mié",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "17-Jue",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "17-Jue",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "17-Jue",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "18-Vie",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "18-Vie",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "18-Vie",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "19-Sáb",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "19-Sáb",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "19-Sáb",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "21-Lun",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "21-Lun",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "21-Lun",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "22-Mar",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "22-Mar",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "22-Mar",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "23-Mié",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "23-Mié",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "23-Mié",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "24-Jue",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "24-Jue",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "24-Jue",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "25-Vie",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "25-Vie",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "25-Vie",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "26-Sáb",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "26-Sáb",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "26-Sáb",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "28-Lun",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "28-Lun",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "28-Lun",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "29-Mar",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "29-Mar",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "29-Mar",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "30-Mié",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "30-Mié",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "30-Mié",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+  Object {
+    "dia": "31-Jue",
+    "hora": "18:00",
+    "miembro": "jeff",
+  },
+  Object {
+    "dia": "31-Jue",
+    "hora": "18:00",
+    "miembro": "ben",
+  },
+  Object {
+    "dia": "31-Jue",
+    "hora": "19:00",
+    "miembro": "tom",
+  },
+]
+`;
+
 exports[`listMembersThatReservedAtTime happy path with empty arguments returns a readable message with member names 1`] = `
 "Fecha: Lunes, 23 de Noviembre 18:00
 Miembros:

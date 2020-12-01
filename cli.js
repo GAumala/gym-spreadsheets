@@ -43,11 +43,16 @@ require('yargs')
       .option('member', {
         describe: 'A string with a  member ID'
       })
+      .option('this-month', {
+        describe: 'Use this month instead of next relative to system time',
+        boolean: true
+      })
       .implies('day', 'hour')
       .example('$0 reservations list', 'prints members that have a reservation for the next training hour relative to system time')
       .example('$0 reservations list --hour 18:00', 'prints members that have a reservation for today at 18:00')
       .example('$0 reservations list --day 25 --hour 18:00', 'prints members that have a reservation for the 25th at 18:00')
-      .example('$0 reservations create-sheet', 'creates the reservation sheet for next month relative to system time'),
+      .example('$0 reservations create-sheet', 'creates the reservation sheet for next month relative to system time')
+      .example('$0 reservations create-sheet --this-month', 'creates the reservation sheet for this month relative to system time'),
     argv => 
       runCLIProgram(() => {
         switch (argv.operation) {

@@ -62,8 +62,8 @@ const setMemberRows = rows =>
     await insertMiembro(rows, trx);
 
     const violations = await checkMemberEntradaConstraint(trx);
-  if (violations.length > 0) 
-    throw new FatalError('EXCESS_MEMBERS_IN_HOUR', { violations });
+    if (violations.length > 0) 
+      throw new FatalError('EXCESS_MEMBERS_IN_HOUR', { violations });
   });
 
 const setReservationRows = rows => 

@@ -136,13 +136,10 @@ class SheetsAdmin {
     const { sheetsAPI, db, clock } = this;
     const { data: memberData } = await populateMemberTable(this);
 
-    const excessHours = await db.checkExcessMembersInTimeSlot();
-    if (excessHours.length > 0) 
-      throw new FatalError('EXCESS_HOURS', { excessHours })
-
-    const [year, month] = args.currentMonth 
-      ? clock.getYearAndMonth() 
-      : clock.getNextYearAndMonth();
+    const dateArray = clock.getFullDateArray();
+    const [year, month] = args['this-month'] 
+      ? dateArray 
+      : calendar.getNextMonth(...dateArray);
 
     const sheetName = lib.getTimetableSheetName(year, month);
     const { reconciliateFn } = await sheetsAPI.createTimeTableSheet(sheetName);

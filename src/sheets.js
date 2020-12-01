@@ -95,7 +95,7 @@ const loadTimeSlots = async (sheetTitle) => {
   const doc = await loadDoc(docIds.timetable);
   const sheet = doc.sheetsByTitle[sheetTitle];
   if (!sheet)
-    return { err: 'SHEET_NOT_FOUND' };
+    return { err: 'SHEET_NOT_FOUND', timeTableMissing: true };
 
   const rows = await sheet.getRows();
   const translateKey = boundary.translateTimeSlotKey;

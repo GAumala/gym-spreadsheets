@@ -48,6 +48,7 @@ require('yargs')
         boolean: true
       })
       .implies('day', 'hour')
+      .example('$0 reservations add --member carlos_sanchez --day 25 --hour 06:00', 'adds a reservation for member with ID "carlos_sanchez" on the 25th at 6:00')
       .example('$0 reservations list', 'prints members that have a reservation for the next training hour relative to system time')
       .example('$0 reservations list --hour 18:00', 'prints members that have a reservation for today at 18:00')
       .example('$0 reservations list --day 25 --hour 18:00', 'prints members that have a reservation for the 25th at 18:00')

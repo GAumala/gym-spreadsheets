@@ -69,6 +69,33 @@ require('yargs')
             });
         }
       }))
-  
+  .command(
+    'members <operation>',
+    'Manage the members sheet',
+    yargs => yargs
+      .option('hour', {
+        alias: [ 'hours' ],
+        describe: 'A string with an hour in the format hh:mm (24 hrs.)'
+      })
+      .option('name', {
+        describe: "A string a member's name"
+      })
+      .option('id', {
+        describe: "A string a member's id"
+      })
+      .example('$0 members add --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and a generated id')
+      .example('$0 members add --id carlos_sanchez1 --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and id "carlos_sanchez1"'),
+    argv => 
+      runCLIProgram(() => {
+        switch (argv.operation) {
+          case "add":
+            return admin.addNewMember(argv);
+          default:
+            return Promise.reject({ 
+              isCustom: true, 
+              message: 'Unknown operation: ' + argv.operation 
+            });
+        }
+      }))
   .help()
   .argv

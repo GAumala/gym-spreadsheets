@@ -20,6 +20,7 @@ const knex = require('knex')({
   pool: {
     afterCreate: buildTables
   },
+  useNullAsDefault: true,
   // debug: true,
 });
 

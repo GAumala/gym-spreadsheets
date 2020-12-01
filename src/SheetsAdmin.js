@@ -73,6 +73,9 @@ const updateTimeTableWithNewMember = async (admin, {dateArray, newMember}) => {
     return []; 
 
   const newSlots = createFutureSlotsAtHour(dateArray, newMember.entrada);
+  if (newSlots.length === 0)
+    return [];
+
   const { newData, unavailableDays } = 
     await admin.db.updateReservationsWithNewMember(newMember, newSlots);
 

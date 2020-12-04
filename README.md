@@ -33,10 +33,11 @@ npm install
 
 ## Update
 
-Pull updates with git:
+Pull updates with git and then install new dependencies (if any) with npm:
 
 ```
 git pull origin master
+npm install
 ```
 
 ## Usage

@@ -97,7 +97,7 @@ describe('addNewMember', () => {
         ],
         reconciliateFn: reconciliateMembers
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -122,10 +122,10 @@ describe('addNewMember', () => {
       return admin.addNewMember({ name: 'Alex', hour: '19:00' });
     })
 
-    it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(2) 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
+    it('calls sheetsAPI.loadReservations with the correct titles', async () => {
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(2) 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('calls reconciliateFn with the updated members list', async () => {
@@ -161,7 +161,7 @@ describe('addNewMember', () => {
         ],
         reconciliateFn: reconciliateMembers
       })),
-      loadTimeSlots: jest.fn(title => {
+      loadReservations: jest.fn(title => {
         if (title !== 'NOV-2020')
           return Promise.resolve({ timeTableMissing: true });
 
@@ -191,10 +191,10 @@ describe('addNewMember', () => {
       return admin.addNewMember({ name: 'Jenny', hour: '08:00' });
     })
 
-    it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(2) 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
+    it('calls sheetsAPI.loadReservations with the correct titles', async () => {
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(2) 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('calls reconciliateFn with the updated members list', async () => {
@@ -276,7 +276,7 @@ describe('addNewMember', () => {
         ],
         reconciliateFn: reconciliateMembers
       })),
-      loadTimeSlots: jest.fn(title => {
+      loadReservations: jest.fn(title => {
         if (title !== 'NOV-2020')
           return Promise.resolve({ timeTableMissing: true });
 
@@ -346,8 +346,8 @@ describe('addNewMember', () => {
       return admin.addNewMember({ name: 'David', hour: '17:00' });
     })
 
-    it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
+    it('calls sheetsAPI.loadReservations with the correct titles', async () => {
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
     });
 
     it('calls reconciliateFn with the updated members list', async () => {
@@ -403,7 +403,7 @@ describe('changeReservationHourForADay', () => {
         ],
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -432,9 +432,9 @@ describe('changeReservationHourForADay', () => {
       });
     });
 
-    it('calls sheetsAPI.loadTimeSlots with the correct title', async () => {
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
+    it('calls sheetsAPI.loadReservations with the correct title', async () => {
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1); 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
     });
 
     it('calls reconciliateFn with an array containing the changed reservation', () => {
@@ -528,7 +528,7 @@ describe('changeReservationHourForADay', () => {
         ],
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         data: [
             { 
               miembro: 'jeff',
@@ -638,7 +638,7 @@ describe('changeReservationHourForADay', () => {
         ],
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -704,7 +704,7 @@ describe('changeReservationHourForADay', () => {
         ],
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         timeTableMissing: true
       }))
     };
@@ -729,9 +729,9 @@ describe('changeReservationHourForADay', () => {
       
     });
 
-    it('calls sheetsAPI.loadTimeSlots with the correct title', async () => {
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1); 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('DIC-2020'); 
+    it('calls sheetsAPI.loadReservations with the correct title', async () => {
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1); 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('throws a readable error', () => {
@@ -769,7 +769,7 @@ describe('listMembersThatReservedAtTime', () => {
         ],
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadTimeSlots: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(title => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -809,13 +809,13 @@ describe('listMembersThatReservedAtTime', () => {
       await db.clear();
     });
 
-    it('calls sheetsAPI.loadTimeSlots with the correct titles', async () => {
-      sheetsAPI.loadTimeSlots.mockClear();
+    it('calls sheetsAPI.loadReservations with the correct titles', async () => {
+      sheetsAPI.loadReservations.mockClear();
 
       await admin.listMembersThatReservedAtTime({ });
 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledTimes(1) 
-      expect(sheetsAPI.loadTimeSlots).toHaveBeenCalledWith('NOV-2020'); 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1) 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
     });
 
     it('returns a readable message with member names', async () => {

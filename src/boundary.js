@@ -1,5 +1,6 @@
 const {
   challengeArraySchema,
+  hashSchema,
   memberArraySchema, 
   memberIdentificationArraySchema,
   newMemberSchema,
@@ -65,6 +66,13 @@ const translateTimeSlotKey = key => {
   }
 };
 
+const compliesWithSchema = args => {
+  const {schema, input} = args;
+  const validation = schema.validate(input);
+
+  return validation.error === undefined && validation.value !== undefined;
+}
+
 const runSheetBoundary = args => {
   const {schema, mapRowsFn, translateKeyFn, metadata, sheetRows} = args;
   const validation = schema.validate(sheetRows.map(mapRowsFn));
@@ -86,6 +94,19 @@ const runUserInputBoundary = args => {
 
   if (validation.error) {
     throw new UserInputBoundaryError(validation.error);
+  }
+
+  return { 
+    data: validation.value, 
+  }
+}
+
+const runCacheBoundary = args => {
+  const {schema, input} = args;
+  const validation = schema.validate(input);
+
+  if (validation.error) {
+    throw new CacheBoundaryError(validation.error);
   }
 
   return { 
@@ -176,8 +197,18 @@ const getTimeFromUserInput = input =>
     }
   });
 
+const getHashFromUserInput = input => 
+  runUserInputBoundary({
+    schema: hashSchema,
+    input: {
+      hash: input.hash
+    }
+  });
+
 module.exports = {
+  compliesWithSchema,
   getChallengeDataFromSheet,
+  getHashFromUserInput,
   getMemberDataFromSheet,
   getMemberIdDataFromSheet,
   getNewMemberFromUserInput,

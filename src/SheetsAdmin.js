@@ -45,7 +45,7 @@ const populateReservationTable = async (admin, dateArray) => {
   const [ year, month ] = dateArray;
 
   const sheetTitle = lib.getTimetableSheetName(year, month);
-  const loadRes = await sheetsAPI.loadTimeSlots(sheetTitle);
+  const loadRes = await sheetsAPI.loadReservations(sheetTitle);
   if (loadRes.timeTableMissing)
     return { ...loadRes, sheetTitle };
   
@@ -85,9 +85,10 @@ const updateTimeTableWithNewMember = async (admin, {dateArray, newMember}) => {
 
 
 class SheetsAdmin {
-  constructor({ sheetsAPI, clock, db }) {
+  constructor({ sheetsAPI, clock, db, cache }) {
     this.sheetsAPI = sheetsAPI;
     this.clock = clock;
+    this.cache = cache;
     this.db = db;
   }
 

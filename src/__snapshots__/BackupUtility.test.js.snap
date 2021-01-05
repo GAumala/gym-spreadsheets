@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`listHistory returns a readable message 1`] = `
+"7091e4465e	1609802004000	reservations create-sheet
+361497c687	1609802124000	members add --name Jeff"
+`;
+
+exports[`undo throws immediately if backup files are corrupted 1`] = `[FatalError: No se pudo deshacer la operación porque el archivo de tipo new-timetable se ha corrompido.]`;
+
+exports[`undo throws immediately if no files are found with the specfied hash 1`] = `[FatalError: No se encontraron datos con el hash da55ef.]`;

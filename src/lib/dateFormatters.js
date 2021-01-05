@@ -38,9 +38,21 @@ const getDayShortName = day => {
   return longName ? longName.substring(0, 3) : longName;
 }
 
+const getReadableDateTime = timestamp => {
+  const date = new Date(timestamp);
+
+  const month = getMonthShortName(date.getMonth() + 1)
+  const monthDay = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+
+  return `${month} ${monthDay} ${hour}:${minute}`
+}
+
 module.exports = {
   getDayLongName,
   getDayShortName,
   getMonthLongName,
-  getMonthShortName
+  getMonthShortName,
+  getReadableDateTime
 }

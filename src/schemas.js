@@ -76,12 +76,29 @@ const timeSlotSchema = Joi.object({
 
 const timeSlotArraySchema = Joi.array().items(timeSlotSchema);
 
+const cacheMetadataSchema = Joi.object({
+  args: Joi.array().items(Joi.string()),
+  systemTime: Joi.number().positive().integer(),
+  type: Joi.string(),
+});
+
+const hashSchema = Joi.object({
+  hash: Joi.string().min(1).max(10).alphanum().case('lower').required()
+});
+
+const sheetTitleSchema = Joi.object({
+  sheetTitle: Joi.string().required()
+});
+
 module.exports = { 
+  cacheMetadataSchema,
   challengeArraySchema,
+  hashSchema,
   memberArraySchema, 
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,
+  sheetTitleSchema,
   timeSlotArraySchema,
   timeSchema
 };

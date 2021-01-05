@@ -8,9 +8,6 @@ const rmdir = util.promisify(fs.rmdir);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
-// const cachePath = path.join(__dirname, '..', '.cache');
-// const cacheDir = fs.mkdirSync('.cache', {recursive: true});
-
 const write = async ({ storageDir, key, fileName, value }) => {
   const contents = JSON.stringify(value, null, 4);
   const dirPath = path.join(storageDir, key);
@@ -36,9 +33,27 @@ const read = async ({ storageDir, key, fileName }) => {
   }
 }
 
+const readAll = async ({ storageDir, key }) =>  {
+  const items = await readdir(storageDir);
+  const matchingItems = items.filter(name => name.startsWith(key));
+  if (matchingItems.length !== 1)
+    return;
+
+  const dirPath = path.join(storageDir, matchingItems[0]);
+  const files = await readdir(dirPath);
+
+  return Promise.all(files.map(
+    fileName => read({ storageDir, key, fileName })));
+}
+
 const rm = ({ storageDir, key }) => {
   const dirPath = path.join(storageDir, key);
   return rmdir(dirPath, { recursive: true });
 }
 
-module.exports = { read, rm, write }
+const listKeys = async ({ storageDir }) => {
+  const keys = await readdir(storageDir);
+  return keys;
+}
+
+module.exports = { listKeys, read, readAll, rm, write }

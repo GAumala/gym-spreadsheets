@@ -66,6 +66,10 @@ const getFatalErrorMsg = (key, params) => {
       return `No se pueden agregar mas miembros para el día ${params.dia} a las ${params.hora}. Por favor busca otro horario.`;
     case 'ALREADY_RESERVED': 
       return `Este miembro ya reservó anteriormente para el día ${params.dia} a las ${params.hora}.`;    
+    case 'HASH_NOT_FOUND': 
+      return `No se encontraron datos con el hash ${params.hash}.`;    
+    case 'HISTORY_FILE_CORRUPTED': 
+      return `No se pudo deshacer la operación porque el archivo de tipo ${params.type} se ha corrompido.`;    
     default: 
       `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
   }

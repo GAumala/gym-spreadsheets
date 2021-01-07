@@ -27,6 +27,12 @@ const memberSchema = Joi.object({
               .required()
 });
 
+const memberIDStringSchema = Joi.object({
+  id: Joi.string()
+        .pattern(memberIDRegex)
+        .required()
+});
+
 const memberArraySchema = Joi.array().items(memberSchema);
 
 const newMemberSchema = Joi.object({
@@ -95,6 +101,7 @@ module.exports = {
   challengeArraySchema,
   hashSchema,
   memberArraySchema, 
+  memberIDStringSchema,
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,

@@ -65,7 +65,9 @@ const getFatalErrorMsg = (key, params) => {
     case 'SLOT_IS_FULL': 
       return `No se pueden agregar mas miembros para el día ${params.dia} a las ${params.hora}. Por favor busca otro horario.`;
     case 'ALREADY_RESERVED': 
-      return `Este miembro ya reservó anteriormente para el día ${params.dia} a las ${params.hora}.`;    
+      return `Este miembro ya reservó anteriormente para el día ${params.dia} a las ${params.hora}.`;
+    case 'MEMBER_NOT_FOUND': 
+      return `No se encontró un miembro con ID: ${params.id}.`;    
     case 'HASH_NOT_FOUND': 
       return `No se encontraron datos con el hash ${params.hash}.`;    
     case 'HISTORY_FILE_CORRUPTED': 

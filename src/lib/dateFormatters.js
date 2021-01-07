@@ -44,9 +44,11 @@ const getReadableDateTime = timestamp => {
   const month = getMonthShortName(date.getMonth() + 1)
   const monthDay = date.getDate();
   const hour = date.getHours();
+  const hourString = hour < 10 ? '0' + hour : hour;
   const minute = date.getMinutes();
+  const minuteString = minute < 10 ? '0' + minute : minute;
 
-  return `${month} ${monthDay} ${hour}:${minute}`
+  return `${month} ${monthDay} ${hourString}:${minuteString}`
 }
 
 module.exports = {

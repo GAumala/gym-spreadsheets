@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 
 const dbConnection = require('./src/db.js')
-const createSheetsAPI = require('./src/sheets-client.js');
-const clock = require('./src/clock.js')
-const db = require('./src/db/queries.js')
-const SheetsAdmin = require('./src/SheetsAdmin.js'); 
-const BackupUtility = require('./src/BackupUtility.js'); 
-const storage = require('./src/lib/json-file-storage.js');
-const { CacheReader } = require('./src/cache.js'); 
+const factory = require('./src/factory.js'); 
 
 const runCLIProgram = (make, exec) => {
   // remove the executable file and the script file
@@ -28,18 +22,11 @@ const runCLIProgram = (make, exec) => {
     .finally(() => dbConnection.destroy());
 };
 
-const runSheetsAdminProgram = exec => runCLIProgram(() => {
-  const args = process.argv.slice(2);
-  const sheetsAPI = createSheetsAPI(args);
-  return new SheetsAdmin({ sheetsAPI, db, clock });
-}, exec)
+const runSheetsAdminProgram = exec => 
+  runCLIProgram(factory.createSheetsAdmin, exec)
 
-const runBackupProgram = exec => runCLIProgram(() => {
-  const args = process.argv.slice(2);
-  const sheetsAPI = createSheetsAPI(args);
-  const cache = new CacheReader({ storage });
-  return new BackupUtility({ sheetsAPI, db, clock, cache });
-}, exec)
+const runBackupProgram = exec => 
+  runCLIProgram(factory.createBackupUtility, exec)
 
 const handleReservationsCommand = argv => 
   runSheetsAdminProgram(admin => {
@@ -63,6 +50,8 @@ const handleMembersCommand = argv =>
     switch (argv.operation) {
       case "add":
         return admin.addNewMember(argv);
+      case "remove":
+        return admin.removeMember(argv);
       case "set-ids":
         return admin.setMissingUserIDs(argv);
       default:
@@ -125,6 +114,7 @@ const buildMembersCommand = yargs => yargs
   })
   .example('$0 members add --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and a generated id')
   .example('$0 members add --id carlos_sanchez1 --name "Carlos Sánchez" --hour 18:00', 'Adds a new member "Carlos Sánchez" with training hour 18:00 and id "carlos_sanchez1"')
+  .example('$0 members remove --id carlos_sanchez', 'Removes the specifiend member from all sheets')
   .example('$0 members set-ids', 'Sets missing user IDs in the members sheet')
 
 const buildHistoryCommand = yargs => yargs

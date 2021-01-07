@@ -2,6 +2,7 @@ const {
   challengeArraySchema,
   hashSchema,
   memberArraySchema, 
+  memberIDStringSchema,
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,
@@ -168,6 +169,14 @@ const getTimetableDataFromSheet = (metadata, sheetRows) =>
     sheetRows
   });
 
+const getMemberIDStringFromUserInput = input => 
+  runUserInputBoundary({
+    schema: memberIDStringSchema,
+    input: {
+      id: input.id,
+    }
+  });
+
 const getNewMemberFromUserInput = input => 
   runUserInputBoundary({
     schema: newMemberSchema,
@@ -210,6 +219,7 @@ module.exports = {
   getChallengeDataFromSheet,
   getHashFromUserInput,
   getMemberDataFromSheet,
+  getMemberIDStringFromUserInput,
   getMemberIdDataFromSheet,
   getNewMemberFromUserInput,
   getNewReservationFromUserInput,

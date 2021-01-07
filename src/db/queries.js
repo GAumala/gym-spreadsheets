@@ -131,6 +131,16 @@ const deleteMemberReservationsForDay = (miembro, dia, db = knex) =>
     .where({ miembro, dia })
     .delete();
 
+const deleteMemberReservations = (miembro, db = knex) => 
+  db.from('reservacion')
+    .where({ miembro })
+    .delete();
+
+const deleteMember = (id, db = knex) => 
+  db.from('miembro')
+    .where({ id })
+    .delete();
+
 const createMonthReservations = monthSlots => 
   knex.transaction(async trx => {
     await clearReservations(trx);
@@ -193,11 +203,19 @@ const changeReservationHourForADay = newReservation =>
     return getOrderedTimetable(trx);
   });
 
+const deleteAllMemberReservations = id => 
+  knex.transaction(async trx => {
+    await deleteMemberReservations(id, trx);
+    return getOrderedTimetable(trx);
+  });
+
 module.exports = { 
   changeReservationHourForADay,
   checkMemberEntradaConstraint,
   clear, 
   createMonthReservations,
+  deleteAllMemberReservations,
+  deleteMember,
   findMiembroById, 
   getReservationsAtSlot,
   insertMiembro,

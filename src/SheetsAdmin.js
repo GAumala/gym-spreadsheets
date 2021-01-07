@@ -62,7 +62,7 @@ const populateReservationTable = async (admin, dateArray) => {
   };
 };
 
-const updateTimeTableWithNewMember = async (admin, {dateArray, newMember}) => {
+const updateTimeTableWithNewMember = async (admin, dateArray, newMember) => {
   const { 
     timeTableMissing, 
     data: timeTableData,
@@ -83,6 +83,18 @@ const updateTimeTableWithNewMember = async (admin, {dateArray, newMember}) => {
   return unavailableDays;
 };
 
+const removeMemberFromTimeTable = async (admin, dateArray, id) => {
+  const { 
+    timeTableMissing, 
+    reconciliateFn
+  } = await populateReservationTable(admin, dateArray);
+
+  if (timeTableMissing)
+    return; 
+
+  const rows = await admin.db.deleteAllMemberReservations(id)
+  return reconciliateFn(rows)
+};
 
 class SheetsAdmin {
   constructor({ sheetsAPI, clock, db, cache }) {
@@ -183,11 +195,8 @@ class SheetsAdmin {
     const [year, month] = dateArray;
     const nextMonthDateArray = moveDateArrayToNextMonthStart(dateArray);
 
-    await updateTimeTableWithNewMember(this, {newMember, dateArray});
-    await updateTimeTableWithNewMember(this, {
-      newMember,
-      dateArray: nextMonthDateArray, 
-     });
+    await updateTimeTableWithNewMember(this, dateArray, newMember);
+    await updateTimeTableWithNewMember(this, nextMonthDateArray, newMember);
     
     await reconciliateMembers([...memberData, newMember]);
     return {};
@@ -279,6 +288,37 @@ class SheetsAdmin {
     return {
       message, data: reservations
     };
+  }
+
+  /**
+   * Remueve un miembro y todas sus ocurrencias de todos los spreadsheets.
+   */
+  async removeMember(args) {
+    const { sheetsAPI, db, clock } = this;
+    const { data: memberData } = boundary.getMemberIDStringFromUserInput(args);
+
+    const { 
+      data: members,
+      reconciliateFn: reconciliateMembers
+    } = await populateMemberTable(this);
+
+    const targetID = memberData.id
+    const targetMemberIndex = members.findIndex(m => m.id === targetID)
+    if (targetMemberIndex === -1)
+      throw new FatalError('MEMBER_NOT_FOUND', { id: targetID });
+
+    const dateArray = clock.getFullDateArray();
+    const [year, month] = dateArray;
+    const nextMonthDateArray = moveDateArrayToNextMonthStart(dateArray);
+
+    await removeMemberFromTimeTable(this, dateArray, targetID)
+    await removeMemberFromTimeTable(this, nextMonthDateArray, targetID)
+
+    const newMembers = members.filter((m, index) =>  
+      index != targetMemberIndex);
+    await reconciliateMembers(newMembers);
+
+    return {};
   }
 }
 

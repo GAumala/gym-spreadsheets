@@ -2,6 +2,76 @@ const dbConnection = require('./db.js')
 const db = require('./db/queries.js')
 const SheetsAdmin = require('./SheetsAdmin.js');
 
+const testingMembers = [
+  { 
+    id: 'jeff',
+    nombre: 'Jeff',
+    entrada: '17:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'ben',
+    nombre: 'Ben',
+    entrada: '17:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'alex',
+    nombre: 'Alex',
+    entrada: '17:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'paul',
+    nombre: 'Paul',
+    entrada: '17:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'john',
+    nombre: 'John',
+    entrada: '17:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'alice',
+    nombre: 'Alice',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'jenny',
+    nombre: 'Jenny',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'bill',
+    nombre: 'Bill',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'fred',
+    nombre: 'Fred',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'mary',
+    nombre: 'Mary',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }, { 
+    id: 'kevin',
+    nombre: 'Kevin',
+    entrada: '18:00',
+    email: '',
+    lesiones: '',
+  }
+];
+
 afterAll(() => dbConnection.destroy());
 
 describe('setMissingUserIDs', () => {
@@ -80,21 +150,7 @@ describe('addNewMember', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 2),
         reconciliateFn: reconciliateMembers
       })),
       loadReservations: jest.fn(title => Promise.resolve({
@@ -144,21 +200,7 @@ describe('addNewMember', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 2),
         reconciliateFn: reconciliateMembers
       })),
       loadReservations: jest.fn(title => {
@@ -211,69 +253,7 @@ describe('addNewMember', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'alex',
-            nombre: 'Alex',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'paul',
-            nombre: 'Paul',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'john',
-            nombre: 'John',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'alice',
-            nombre: 'Alice',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'jenny',
-            nombre: 'Jenny',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'bill',
-            nombre: 'Bill',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'fred',
-            nombre: 'Fred',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'mary',
-            nombre: 'Mary',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers,
         reconciliateFn: reconciliateMembers
       })),
       loadReservations: jest.fn(title => {
@@ -354,7 +334,7 @@ describe('addNewMember', () => {
       expect(reconciliateMembers).toHaveBeenCalledTimes(1)
 
       const updatedMembersList = reconciliateMembers.mock.calls[0][0]
-      expect(updatedMembersList).toHaveLength(11)
+      expect(updatedMembersList).toHaveLength(12)
       expect(updatedMembersList).toContainEqual({ 
         id: 'david',
         nombre: 'David',
@@ -386,21 +366,7 @@ describe('changeReservationHourForADay', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       loadReservations: jest.fn(title => Promise.resolve({
@@ -457,133 +423,64 @@ describe('changeReservationHourForADay', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'alex',
-            nombre: 'Alex',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'paul',
-            nombre: 'Paul',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'john',
-            nombre: 'John',
-            entrada: '17:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'alice',
-            nombre: 'Alice',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'jenny',
-            nombre: 'Jenny',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'bill',
-            nombre: 'Bill',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'fred',
-            nombre: 'Fred',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'mary',
-            nombre: 'Mary',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'kevin',
-            nombre: 'Kevin',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers,
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       loadReservations: jest.fn(title => Promise.resolve({
         data: [
-            { 
-              miembro: 'jeff',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'ben',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'alex',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'paul',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'john',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'alice',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'jenny',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'bill',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'fred',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'mary',
-              dia: '25-Mié',
-              hora: '17:00',
-            }, { 
-              miembro: 'kevin',
-              dia: '25-Mié',
-              hora: '18:00',
-            }, { 
-              miembro: 'fred',
-              dia: '26-Mié',
-              hora: '18:00',
-            }, { 
-              miembro: 'mary',
-              dia: '26-Mié',
-              hora: '18:00',
-            }
-          ],
+          {
+            miembro: 'jeff',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'ben',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'alex',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'paul',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'john',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'alice',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'jenny',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'bill',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'fred',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'mary',
+            dia: '25-Mié',
+            hora: '17:00',
+          }, {
+            miembro: 'kevin',
+            dia: '25-Mié',
+            hora: '18:00',
+          }, {
+            miembro: 'fred',
+            dia: '26-Mié',
+            hora: '18:00',
+          }, {
+            miembro: 'mary',
+            dia: '26-Mié',
+            hora: '18:00',
+          }],
         reconciliateFn: reconciliateReservations
       }))
     };
@@ -621,21 +518,7 @@ describe('changeReservationHourForADay', () => {
     const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       loadReservations: jest.fn(title => Promise.resolve({
@@ -687,21 +570,7 @@ describe('changeReservationHourForADay', () => {
   describe('when timetable has not been created yet', () => {
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       loadReservations: jest.fn(title => Promise.resolve({
@@ -746,27 +615,7 @@ describe('listMembersThatReservedAtTime', () => {
     const reconciliateReservations = jest.fn();
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'tom',
-            nombre: 'Tom',
-            entrada: '19:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers,
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       loadReservations: jest.fn(title => Promise.resolve({
@@ -780,7 +629,7 @@ describe('listMembersThatReservedAtTime', () => {
             dia: '23-Lun',
             hora: '18:00',
           }, { 
-            miembro: 'tom',
+            miembro: 'alex',
             dia: '23-Lun',
             hora: '19:00',
           }, { 
@@ -792,7 +641,7 @@ describe('listMembersThatReservedAtTime', () => {
             dia: '24-Mar',
             hora: '18:00',
           }, { 
-            miembro: 'tom',
+            miembro: 'paul',
             dia: '23-Mar',
             hora: '19:00',
           }
@@ -857,7 +706,7 @@ describe('listMembersThatReservedAtTime', () => {
       });
       expect(res.data).toEqual([
         { 
-          nombre: 'Tom',
+          nombre: 'Alex',
           dia: '23-Lun',
           hora: '19:00',
         }
@@ -871,27 +720,7 @@ describe('createTimeTableSheet', () => {
     const reconciliateReservations = jest.fn();
     const sheetsAPI = {
       loadMembers: jest.fn(() => Promise.resolve({
-        data: [
-          { 
-            id: 'jeff',
-            nombre: 'Jeff',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'ben',
-            nombre: 'Ben',
-            entrada: '18:00',
-            email: '',
-            lesiones: '',
-          }, { 
-            id: 'tom',
-            nombre: 'Tom',
-            entrada: '19:00',
-            email: '',
-            lesiones: '',
-          }
-        ],
+        data: testingMembers.slice(0, 3),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
       createTimeTableSheet: jest.fn(title => Promise.resolve({
@@ -953,5 +782,190 @@ describe('createTimeTableSheet', () => {
         expect(timeTable).toHaveLength(75); // (30 - 5) * 3 
       });
     });
+  });
+});
+
+describe('removeMember', () => {
+  describe('happy path with two timetables', () => {
+    const reconciliateMembers = jest.fn(() => Promise.resolve());
+    const reconciliateReservationsDec = jest.fn(() => Promise.resolve());
+    const reconciliateReservationsJan = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: testingMembers,
+        reconciliateFn: reconciliateMembers
+      })),
+      loadReservations: jest.fn((sheetTitle) => {
+        if (sheetTitle == 'DIC-2020')
+          return Promise.resolve({
+            data: [
+              { 
+                miembro: 'jeff',
+                dia: '28-Lun',
+                hora: '18:00',
+              }, { 
+                miembro: 'ben',
+                dia: '28-Lun',
+                hora: '18:00',
+              }, { 
+                miembro: 'jeff',
+                dia: '29-Mar',
+                hora: '06:00',
+              }, { 
+                miembro: 'ben',
+                dia: '29-Mar',
+                hora: '18:00',
+              } 
+            ],
+            reconciliateFn: reconciliateReservationsDec
+          });
+        if (sheetTitle == 'ENE-2021')
+          return Promise.resolve({
+            data: [
+              { 
+                miembro: 'jeff',
+                dia: '01-Vie',
+                hora: '18:00',
+              }, { 
+                miembro: 'ben',
+                dia: '01-Vie',
+                hora: '18:00',
+              }
+            ],
+            reconciliateFn: reconciliateReservationsJan
+          });
+      }),
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 12, 28, 17, 15])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+
+    beforeAll(async () => {
+        return admin.removeMember({ id: 'ben' })
+    });
+
+    it('should reconciliate members without the removed member', async () => {
+      const expectedMembers = [ ...testingMembers ];
+      expectedMembers.splice(1, 1) // remove ben;
+
+      expect(reconciliateMembers).toHaveBeenCalledTimes(1);
+      expect(reconciliateMembers).toHaveBeenCalledWith(expectedMembers);
+    })
+
+    it('should reconciliate reservations without the removed members rows', async () => {
+      expect(reconciliateReservationsDec).toHaveBeenCalledTimes(1);
+      expect(reconciliateReservationsDec).toHaveBeenCalledWith([
+        { 
+          miembro: 'jeff',
+          dia: '28-Lun',
+          hora: '18:00',
+        }, { 
+          miembro: 'jeff',
+          dia: '29-Mar',
+          hora: '06:00',
+        }
+      ]);
+
+      expect(reconciliateReservationsJan).toHaveBeenCalledTimes(1);
+      expect(reconciliateReservationsJan).toHaveBeenCalledWith([
+        { 
+          miembro: 'jeff',
+          dia: '01-Vie',
+          hora: '18:00',
+        }
+      ]);
+    });
+  });
+
+  describe('happy path with one timetable', () => {
+    const reconciliateMembers = jest.fn(() => Promise.resolve());
+    const reconciliateReservations = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: testingMembers,
+        reconciliateFn: reconciliateMembers
+      })),
+      loadReservations: jest.fn((sheetTitle) => {
+        if (sheetTitle == 'DIC-2020')
+          return Promise.resolve({
+            data: [
+              { 
+                miembro: 'jeff',
+                dia: '28-Lun',
+                hora: '18:00',
+              }, { 
+                miembro: 'ben',
+                dia: '28-Lun',
+                hora: '18:00',
+              }, { 
+                miembro: 'jeff',
+                dia: '29-Mar',
+                hora: '06:00',
+              }, { 
+                miembro: 'ben',
+                dia: '29-Mar',
+                hora: '18:00',
+              } 
+            ],
+            reconciliateFn: reconciliateReservations
+          });
+
+          return Promise.resolve({ timeTableMissing: true })
+      }),
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 12, 28, 17, 15])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+
+    beforeAll(async () => {
+        return admin.removeMember({ id: 'ben' })
+    });
+
+    it('should reconciliate members without the removed member', async () => {
+      const expectedMembers = [ ...testingMembers ];
+      expectedMembers.splice(1, 1) // remove ben;
+
+      expect(reconciliateMembers).toHaveBeenCalledTimes(1);
+      expect(reconciliateMembers).toHaveBeenCalledWith(expectedMembers);
+    })
+
+    it('should reconciliate reservations without the removed members rows', async () => {
+      expect(reconciliateReservations).toHaveBeenCalledTimes(1);
+      expect(reconciliateReservations).toHaveBeenCalledWith([
+        { 
+          miembro: 'jeff',
+          dia: '28-Lun',
+          hora: '18:00',
+        }, { 
+          miembro: 'jeff',
+          dia: '29-Mar',
+          hora: '06:00',
+        }
+      ]);
+    });
+  });
+
+  it('fails when member is not found', async () => {
+    const sheetsAPI = {
+      loadMembers: jest.fn(() => Promise.resolve({
+        data: testingMembers,
+      })),
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15])
+    }
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock })
+
+    let error;
+    try {
+      await admin.removeMember({ id: 'not_user' }) 
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeDefined();
+    expect(error).toMatchSnapshot();
   });
 });

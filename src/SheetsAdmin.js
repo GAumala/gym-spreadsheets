@@ -1,4 +1,5 @@
 const boundary = require('./boundary.js');
+const { compose, identity } = require('./lib/fp.js')
 const lib = require('./lib.js');
 const { 
   numberToThousandthInt, 
@@ -15,9 +16,9 @@ const {
   breakTimeSlotsWithDate 
 } = require('./lib/timeSlot.js');
 const {
+  changeDateArrayHourAndMinutes,
   dateArrayToReadableString,
-  moveDateArrayToFutureTime,
-  moveDateArrayToMinuteEarlier,
+  moveDateArrayToFutureDay,
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,
 } = require('./lib/dateArray.js');
@@ -40,7 +41,7 @@ const populateMemberTable = async (admin) =>  {
   return loadRes;
 };
 
-const populateReservationTable = async (admin, dateArray) => {
+const populateReservationTable = async (admin, dateArray, useAll) => {
   const { sheetsAPI, db } = admin;
   const [ year, month ] = dateArray;
 
@@ -48,6 +49,11 @@ const populateReservationTable = async (admin, dateArray) => {
   const loadRes = await sheetsAPI.loadReservations(sheetTitle);
   if (loadRes.timeTableMissing)
     return { ...loadRes, sheetTitle };
+
+  if (useAll) {
+    await db.setReservationRows(loadRes.data);
+    return loadRes;
+  }
   
   // only future rows should be used
   const { past, future } = breakTimeSlotsWithDate(loadRes.data, dateArray);
@@ -87,7 +93,7 @@ const removeMemberFromTimeTable = async (admin, dateArray, id) => {
   const { 
     timeTableMissing, 
     reconciliateFn
-  } = await populateReservationTable(admin, dateArray);
+  } = await populateReservationTable(admin, dateArray, true);
 
   if (timeTableMissing)
     return; 
@@ -181,7 +187,7 @@ class SheetsAdmin {
       entrada: newMemberData.hour,
       id: newMemberData.id || lib.createUserID(newMemberData.name),
       email: '',
-      lesiones: ''
+      notas: ''
     };
 
     const { 
@@ -260,25 +266,35 @@ class SheetsAdmin {
   async listMembersThatReservedAtTime(args) {
     const { sheetsAPI, db, clock } = this;
     const { data: timeData } = boundary.getTimeFromUserInput(args);
-    const dateArray = 
-      moveDateArrayToNextTrainingHour(
-        moveDateArrayToFutureTime(
-          clock.getFullDateArray(), timeData));
-    const slot = convertDateToSlot(...dateArray); 
 
     await populateMemberTable(this);
+
+    const modifyDay = timeData.day ? 
+      x => moveDateArrayToFutureDay(x, timeData.day) 
+      : identity;
+    const modifyHour = timeData.hour ? 
+      x => changeDateArrayHourAndMinutes(x, timeData.hour) 
+      : identity;
+    
+    const dateArray = compose(
+      moveDateArrayToNextTrainingHour,
+      modifyDay,
+      modifyHour,
+      clock.getFullDateArray());
+
+    // Populate reservations table with data starting from today onwards.
     const { 
       timeTableMissing, 
       data: timeTableData,
       sheetTitle,
       reconciliateFn
-    } = await populateReservationTable(
-      this, moveDateArrayToMinuteEarlier(dateArray));
-    
+    } = await populateReservationTable(this, dateArray);
+
     if (timeTableMissing)
       throw new FatalError('SHEET_NOT_FOUND', { title: sheetTitle });
 
     const readableDate = dateArrayToReadableString(dateArray);
+    const slot = convertDateToSlot(...dateArray); 
     const reservations = await db.getReservationsAtSlot(slot);
     const members = reservations.map(({ nombre }) => nombre);
     const message = reservations.length === 0 

@@ -65,8 +65,8 @@ describe('undo', () => {
 
   it('handles create timetable sheet operation', async () => {
     const restoredMembers = [ 
-      { id: 'tim', nombre: 'Tim', email: '', lesiones: '', entrada: '08:00' }, 
-      { id: 'ben', nombre: 'Ben', email: '', lesiones: '', entrada: '08:00' }, 
+      { id: 'tim', nombre: 'Tim', email: '', notas: '', entrada: '08:00' }, 
+      { id: 'ben', nombre: 'Ben', email: '', notas: '', entrada: '08:00' }, 
     ];
     const cache = {
       findFilesByKey: jest.fn(() => Promise.resolve([
@@ -93,8 +93,8 @@ describe('undo', () => {
 
   it('handles reservations and members', async () => {
     const restoredMembers = [ 
-      { id: 'tim', nombre: 'Tim', email: '', lesiones: '', entrada: '08:00' }, 
-      { id: 'ben', nombre: 'Ben', email: '', lesiones: '', entrada: '08:00' }, 
+      { id: 'tim', nombre: 'Tim', email: '', notas: '', entrada: '08:00' }, 
+      { id: 'ben', nombre: 'Ben', email: '', notas: '', entrada: '08:00' }, 
     ];
     const restoredReservations = [ 
       { miembro: 'tim', hora: '08:00', dia: '01-Mié' }, 

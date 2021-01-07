@@ -3,11 +3,16 @@ const calendar = require('./calendar.js');
 const { trainingHours } = require('./constants.js');
 const { getMonthLongName, getDayLongName } = require('./dateFormatters.js');
 
-const moveDateArrayToNextMonthStart = dateArray => {
+const moveDateArrayToNextMonthStart = dateArray => { 
   const [year, month] = dateArray;
   return [...calendar.getNextMonth(year, month), 1, 0, 0];
 }
 
+/**
+ * Moves the date array to the next training hour. 
+ * If the array's hour and minute already match a training hour,
+ * an equal array is returned (no movement).
+ */
 const moveDateArrayToNextTrainingHour = dateArray => {
   const [year, month, day, hour, minute] = dateArray;
 
@@ -41,27 +46,6 @@ const moveDateArrayToFutureDay = (dateArray, targetDay) => {
     dateArray[4]];
 }
 
-const moveDateArrayToFutureTime = (dateArray, time) => {
-  if (!time.hour)
-    return dateArray;
-
-  const [specifiedHour, specifiedMinute] = parseHour(time.hour) 
-  const [year, month, day, hour, minute] = dateArray;
-  const newDateArray = [year, month, day, specifiedHour, specifiedMinute];
-
-  if (!time.day) {
-    if (specifiedHour < hour || (specifiedHour === hour && specifiedMinute < minute)) {
-      const lastMonthDay = calendar.getNumberOfDaysInMonth(year, month);
-      const nextDay = day === lastMonthDay ? 1 : day + 1;
-      return moveDateArrayToFutureDay(newDateArray, nextDay);
-    }
-
-    return newDateArray;
-  }
-
-  return moveDateArrayToFutureDay(newDateArray, time.day);
-}
-
 const moveDateArrayToMinuteEarlier = (dateArray) => {
   const [year, month, day, hour, minute] = dateArray;
 
@@ -86,6 +70,16 @@ const moveDateArrayToMinuteEarlier = (dateArray) => {
   }
 }
 
+/**
+ * Change the array's hour and minutes. 
+ * The timeString argument is meant to be in format hh:mm
+ */
+const changeDateArrayHourAndMinutes = (dateArray, timeString) => {
+  const [year, month, day, hour, minute] = dateArray;
+  const [specifiedHour, specifiedMinute] = parseHour(timeString) 
+  return [year, month, day, specifiedHour, specifiedMinute];
+}
+
 const dateArrayToReadableString = (dateArray) => {
   const [year, month, day, hour, minute] = dateArray;
   const readableMonth = getMonthLongName(month);
@@ -95,11 +89,11 @@ const dateArrayToReadableString = (dateArray) => {
 }
 
 module.exports = {
+  changeDateArrayHourAndMinutes,
   dateArrayToReadableString,
+  moveDateArrayToFutureDay,
   moveDateArrayToMinuteEarlier,
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,
-  moveDateArrayToFutureDay,
-  moveDateArrayToFutureTime,
 }
 

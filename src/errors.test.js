@@ -20,12 +20,12 @@ describe('SheetBoundaryError', () => {
       {id: '', 
        nombre: 'Carlos Hernández', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '07:00'},
       {id: '', 
        nombre: '', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '07:00'}
     ];
     const error = createBoundaryError(docInfo, memberArraySchema, data);
@@ -44,12 +44,12 @@ it('uses Joi error data to create excluded value error msg', () => {
       {id: '', 
        nombre: 'Carlos Hernández', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '13:00'},
       {id: '', 
        nombre: 'Víctor Borja', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '07:00'}
     ];
     const error = createBoundaryError(docInfo, memberArraySchema, data);

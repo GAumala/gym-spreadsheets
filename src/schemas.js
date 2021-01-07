@@ -21,7 +21,7 @@ const memberSchema = Joi.object({
         .allow(''),
   nombre: Joi.string().required(),
   email: Joi.string().email().allow(''),
-  lesiones: Joi.string().allow(''),
+  notas: Joi.string().allow(''),
   entrada: Joi.any()
               .valid(...trainingHours)
               .required()

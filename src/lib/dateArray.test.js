@@ -97,33 +97,3 @@ describe('moveDateArrayToMinuteEarlier', () => {
     expect(result).toEqual([2020, 12, 31, 23, 59]);
   });
 });
-
-describe('moveDateArrayToFutureTime', () => {
-  it('moves a date array a few hours into the future of the same day', () => {
-    const dateArray = [2020, 11, 30, 12, 0];
-    const time = { hour: '18:00' };
-    const result = moveDateArrayToFutureTime(dateArray, time);
-    expect(result).toEqual([2020, 11, 30, 18, 0]);
-  });
-
-  it('moves a date array a couple hours into next day', () => {
-    const dateArray = [2020, 11, 30, 20, 0];
-    const time = { hour: '8:00' };
-    const result = moveDateArrayToFutureTime(dateArray, time);
-    expect(result).toEqual([2020, 12, 1, 8, 0]);
-  })
-
-  it('moves a date array to specified day and time within same month', () => {
-    const dateArray = [2020, 11, 15, 20, 0];
-    const time = { day: 30, hour: '8:00' };
-    const result = moveDateArrayToFutureTime(dateArray, time);
-    expect(result).toEqual([2020, 11, 30, 8, 0]);
-  });
-
-  it('moves a date array to specified day and time in next month', () => {
-    const dateArray = [2020, 11, 15, 16, 0];
-    const time = { day: 10, hour: '18:30' };
-    const result = moveDateArrayToFutureTime(dateArray, time);
-    expect(result).toEqual([2020, 12, 10, 18, 30]);
-  });
-})

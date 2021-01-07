@@ -272,7 +272,7 @@ describe('breakTimeSlotsWithDate', () => {
     ]);
   });
   
-  it('if current time matches any slot, that slot goes in past', () => {
+  it('if current time matches any slot, that slot goes in future', () => {
     const slots = [
       { dia: '25-Mié', hora: '09:30' },
       { dia: '26-Jue', hora: '07:00' },
@@ -289,16 +289,16 @@ describe('breakTimeSlotsWithDate', () => {
       { dia: '25-Mié', hora: '09:30' },
       { dia: '26-Jue', hora: '07:00' },
       { dia: '26-Jue', hora: '08:00' },
-      { dia: '26-Jue', hora: '09:30' }
     ]);
     expect(future).toEqual([
+      { dia: '26-Jue', hora: '09:30' },
       { dia: '27-Vie', hora: '07:00' },
       { dia: '27-Vie', hora: '08:00' },
       { dia: '27-Vie', hora: '09:30' }
     ]);
   });
 
-  it('if current time matches first slot, the first goes on past', () => {
+  it('if current time matches first slot, the first goes on future', () => {
     const slots = [
       { dia: '26-Jue', hora: '07:00' },
       { dia: '26-Jue', hora: '08:00' },
@@ -310,10 +310,9 @@ describe('breakTimeSlotsWithDate', () => {
 
     const dateArray = [2020, 11, 26, 7, 0];
     const { past, future } = breakTimeSlotsWithDate(slots, dateArray);
-    expect(past).toEqual([
-      { dia: '26-Jue', hora: '07:00' },
-    ]);
+    expect(past).toEqual([]);
     expect(future).toEqual([
+      { dia: '26-Jue', hora: '07:00' },
       { dia: '26-Jue', hora: '08:00' },
       { dia: '26-Jue', hora: '09:30' },
       { dia: '27-Vie', hora: '07:00' },
@@ -322,7 +321,7 @@ describe('breakTimeSlotsWithDate', () => {
     ]);
   });
 
-  it('if current time matches last slot, the last goes on past', () => {
+  it('if current time matches last slot, the last goes on future', () => {
     const slots = [
       { dia: '26-Jue', hora: '07:00' },
       { dia: '26-Jue', hora: '08:00' },
@@ -340,9 +339,10 @@ describe('breakTimeSlotsWithDate', () => {
       { dia: '26-Jue', hora: '09:30' },
       { dia: '27-Vie', hora: '07:00' },
       { dia: '27-Vie', hora: '08:00' },
+    ]);
+    expect(future).toEqual([
       { dia: '27-Vie', hora: '09:30' }
     ]);
-    expect(future).toEqual([]);
   });
 
   it('handles a date in the past', () => {

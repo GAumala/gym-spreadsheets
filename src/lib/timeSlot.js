@@ -71,6 +71,12 @@ const convertDateToSlot = (year, month, date, hour, minutes) => {
   return { dia, hora };
 }
 
+/**
+ * Returns an object with two arrays: `past` and `future`.
+ * The former contains slots in the past of the specified 
+ * date, while the latter contains slots in the future OR 
+ * present.
+ */
 const breakTimeSlotsWithDate = (slots, dateArray) => {
   if (slots.length === 0)
     return { past: [], future: [] }
@@ -81,27 +87,25 @@ const breakTimeSlotsWithDate = (slots, dateArray) => {
   const lastSlot = slots[slots.length - 1];
 
   const isBeforeFirstSlot = 
-    compareTimeSlots(dateAsSlot, firstSlot) === -1;
-
-  if (slots.length === 1) 
-    return isBeforeFirstSlot 
-      ? {past: [], future: slots} 
-      : {past: slots, future: []};
+    compareTimeSlots(dateAsSlot, firstSlot) !== 1;
 
   if (isBeforeFirstSlot)
     return {past: [], future: slots}
+  
+  if (slots.length === 1) // time is after first slot 
+    return {past: slots, future: []};
 
   for (let i = 0; i < slots.length - 1; i++) {
     const currentSlot = slots[i];
     const nextSlot = slots[i + 1];
 
-  const isAfterCurrentSlot = 
-    compareTimeSlots(dateAsSlot, currentSlot) > -1;
+    const isAfterCurrentSlot = 
+      compareTimeSlots(dateAsSlot, currentSlot) === 1;
 
-  const isBeforeNextSlot = 
-    compareTimeSlots(dateAsSlot, nextSlot) === -1;
+    const isBeforeOrEqualToNextSlot = 
+      compareTimeSlots(dateAsSlot, nextSlot) < 1;
 
-    if (isAfterCurrentSlot && isBeforeNextSlot)
+    if (isAfterCurrentSlot && isBeforeOrEqualToNextSlot) 
       return {
         past: slots.slice(0, i + 1),
         future: slots.slice(i + 1) 

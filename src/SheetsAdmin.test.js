@@ -8,67 +8,67 @@ const testingMembers = [
     nombre: 'Jeff',
     entrada: '17:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'ben',
     nombre: 'Ben',
     entrada: '17:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'alex',
     nombre: 'Alex',
     entrada: '17:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'paul',
     nombre: 'Paul',
     entrada: '17:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'john',
     nombre: 'John',
     entrada: '17:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'alice',
     nombre: 'Alice',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'jenny',
     nombre: 'Jenny',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'bill',
     nombre: 'Bill',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'fred',
     nombre: 'Fred',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'mary',
     nombre: 'Mary',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }, { 
     id: 'kevin',
     nombre: 'Kevin',
     entrada: '18:00',
     email: '',
-    lesiones: '',
+    notas: '',
   }
 ];
 
@@ -85,19 +85,19 @@ describe('setMissingUserIDs', () => {
             nombre: 'Víctor Garzón',
             entrada: '06:00',
             email: '',
-            lesiones: '',
+            notas: '',
           }, { 
             id: '',
             nombre: 'Andrés Coello',
             entrada: '06:00',
             email: '',
-            lesiones: '',
+            notas: '',
           }, { 
             id: 'gonzalo_quezada1',
             nombre: 'Gonzálo Quezada',
             entrada: '06:00',
             email: '',
-            lesiones: '',
+            notas: '',
           }
         ],
         reconciliateFn: reconciliateMembers
@@ -125,19 +125,19 @@ describe('setMissingUserIDs', () => {
           nombre: 'Víctor Garzón',
           entrada: '06:00',
           email: '',
-          lesiones: '',
+          notas: '',
         }, { 
           id: 'andres_coello',
           nombre: 'Andrés Coello',
           entrada: '06:00',
           email: '',
-          lesiones: '',
+          notas: '',
         }, { 
           id: 'gonzalo_quezada1',
           nombre: 'Gonzálo Quezada',
           entrada: '06:00',
           email: '',
-          lesiones: '',
+          notas: '',
         }
       ])
     });
@@ -340,7 +340,7 @@ describe('addNewMember', () => {
         nombre: 'David',
         entrada: '17:00',
         email: '',
-        lesiones: '',
+        notas: '',
       });
     });
 
@@ -629,6 +629,10 @@ describe('listMembersThatReservedAtTime', () => {
             dia: '23-Lun',
             hora: '18:00',
           }, { 
+            miembro: 'paul',
+            dia: '23-Lun',
+            hora: '17:00',
+          }, { 
             miembro: 'alex',
             dia: '23-Lun',
             hora: '19:00',
@@ -642,7 +646,7 @@ describe('listMembersThatReservedAtTime', () => {
             hora: '18:00',
           }, { 
             miembro: 'paul',
-            dia: '23-Mar',
+            dia: '24-Mar',
             hora: '19:00',
           }
         ],
@@ -658,13 +662,22 @@ describe('listMembersThatReservedAtTime', () => {
       await db.clear();
     });
 
-    it('calls sheetsAPI.loadReservations with the correct titles', async () => {
+    it('calls sheetsAPI.loadReservations with the current month title', async () => {
       sheetsAPI.loadReservations.mockClear();
 
       await admin.listMembersThatReservedAtTime({ });
 
       expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1) 
       expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('NOV-2020'); 
+    });
+
+    it('calls sheetsAPI.loadReservations with the next month title', async () => {
+      sheetsAPI.loadReservations.mockClear();
+
+      await admin.listMembersThatReservedAtTime({ day: 20, hour: '18:00' });
+
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1) 
+      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith('DIC-2020'); 
     });
 
     it('returns a readable message with member names', async () => {
@@ -709,6 +722,19 @@ describe('listMembersThatReservedAtTime', () => {
           nombre: 'Alex',
           dia: '23-Lun',
           hora: '19:00',
+        }
+      ]);
+    });
+
+    it('can query past hours in the current day', async () => {
+      const res = await admin.listMembersThatReservedAtTime({ 
+        hour: '17:00' 
+      });
+      expect(res.data).toEqual([
+        { 
+          nombre: 'Paul',
+          dia: '23-Lun',
+          hora: '17:00',
         }
       ]);
     });
@@ -801,6 +827,14 @@ describe('removeMember', () => {
             data: [
               { 
                 miembro: 'jeff',
+                dia: '26-Sáb',
+                hora: '18:00',
+              }, { 
+                miembro: 'ben',
+                dia: '26-Sáb',
+                hora: '18:00',
+              }, { 
+                miembro: 'jeff',
                 dia: '28-Lun',
                 hora: '18:00',
               }, { 
@@ -823,6 +857,10 @@ describe('removeMember', () => {
           return Promise.resolve({
             data: [
               { 
+                miembro: 'ben',
+                dia: '26-Sáb',
+                hora: '18:00',
+              }, { 
                 miembro: 'jeff',
                 dia: '01-Vie',
                 hora: '18:00',
@@ -857,6 +895,10 @@ describe('removeMember', () => {
       expect(reconciliateReservationsDec).toHaveBeenCalledTimes(1);
       expect(reconciliateReservationsDec).toHaveBeenCalledWith([
         { 
+          miembro: 'jeff',
+          dia: '26-Sáb',
+          hora: '18:00',
+        }, { 
           miembro: 'jeff',
           dia: '28-Lun',
           hora: '18:00',

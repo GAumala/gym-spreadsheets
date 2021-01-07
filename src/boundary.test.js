@@ -17,17 +17,17 @@ describe('getMemberDataFromSheet', () => {
       {ID: null, 
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
-       LESIONES: undefined, 
+       NOTAS: undefined, 
        HORARIO: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
-       LESIONES: null, 
+       NOTAS: null, 
        HORARIO: '07:00'},
       {ID: 'nestor_ponce', 
        NOMBRE: 'Nestor Ponce', 
        EMAIL: 'nponce@mail.com', 
-       LESIONES: '', 
+       NOTAS: '', 
        HORARIO: '12:00'},
     ];
 
@@ -35,17 +35,17 @@ describe('getMemberDataFromSheet', () => {
       {id: '', 
        nombre: 'Carlos Hernández', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '07:00'},
       {id: '', 
        nombre: 'Luis Suarez', 
        email: '', 
-       lesiones: '', 
+       notas: '', 
        entrada: '07:00'},
       {id: 'nestor_ponce', 
        nombre: 'Nestor Ponce', 
        email: 'nponce@mail.com', 
-       lesiones: '', 
+       notas: '', 
        entrada: '12:00'},
     ]
     const sheetData = getMemberDataFromSheet(sheetMetadata, rows);
@@ -56,7 +56,7 @@ describe('getMemberDataFromSheet', () => {
     const rows = [
       {NOMBRE: 'Nestor Ponce', 
        EMAIL: 'nponce@mail.com', 
-       LESIONES: '', 
+       NOTAS: '', 
        HORARIO: '12:00'},
     ];
 
@@ -69,16 +69,16 @@ describe('getMemberDataFromSheet', () => {
       {ID: null, 
        NOMBRE: 'Carlos Hernández', 
        EMAIL: '', 
-       LESIONES: undefined, 
+       NOTAS: undefined, 
        HORARIO: '07:00'},
       {ID: '', 
        NOMBRE: 'Luis Suarez', 
        EMAIL: undefined, 
-       LESIONES: null, 
+       NOTAS: null, 
        HORARIO: '07:00'},
       {NOMBRE: '', 
        EMAIL: 'nponce@mail.com', 
-       LESIONES: '', 
+       NOTAS: '', 
        HORARIO: '12:00'}
     ];
 

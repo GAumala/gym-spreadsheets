@@ -30,18 +30,20 @@ const getDateHoursAndMinutes = () => {
   const hours = currentDate.getHours();
   const minutes = currentDate.getMinutes();
 
-  return [date, hours, minutes]
-}
+  return [date, hours, minutes];
+};
 
 /**
  * Get a full date array  with the curent time, ([YYYY mm dd hh mm ss])
  * relative to system time.
  */
-const getFullDateArray = () => 
-  [...getYearAndMonth(), ...getDateHoursAndMinutes()];
+const getFullDateArray = () => [
+  ...getYearAndMonth(),
+  ...getDateHoursAndMinutes(),
+];
 
 module.exports = {
   getYearAndMonth,
-  getYearAndNextMonth, 
+  getYearAndNextMonth,
   getFullDateArray,
-}
+};

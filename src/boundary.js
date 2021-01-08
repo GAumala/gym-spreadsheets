@@ -1,204 +1,212 @@
 const {
   challengeArraySchema,
   hashSchema,
-  memberArraySchema, 
+  memberArraySchema,
   memberIDStringSchema,
   memberIdentificationArraySchema,
   newMemberSchema,
   newReservationSchema,
   timeSlotArraySchema,
-  timeSchema
-} = require('./schemas.js')
-const {
-  SheetBoundaryError,
-  UserInputBoundaryError
-} = require('./errors.js')
+  timeSchema,
+} = require("./schemas.js");
+const { SheetBoundaryError, UserInputBoundaryError } = require("./errors.js");
 
-const badHourFormatRegex = new RegExp('^[0-9]:[0-9][0-9]$');
+const badHourFormatRegex = new RegExp("^[0-9]:[0-9][0-9]$");
 
 const getAsString = (value) => {
-  if (typeof value === 'string')
-    return value.trim();
+  if (typeof value === "string") return value.trim();
 
-  if (value == undefined || value == null)
-    return '';
+  if (value == undefined || value == null) return "";
 
-  return '' + value;
-}
+  return "" + value;
+};
 
 const getAsHourString = (value) => {
-  if (value === undefined)
-    return undefined;
+  if (value === undefined) return undefined;
 
   const stringValue = getAsString(value);
-  if (badHourFormatRegex.test(stringValue))
-    return '0' + stringValue;
+  if (badHourFormatRegex.test(stringValue)) return "0" + stringValue;
 
   return stringValue;
-}
+};
 
-const translateMemberKey = key => {
+const translateMemberKey = (key) => {
   switch (key) {
-    case 'id': return 'ID';
-    case 'nombre': return 'NOMBRE';
-    case 'email': return 'EMAIL';
-    case 'entrada': return 'HORARIO';
-    case 'notas': return 'NOTAS';
-    default: return key;
+    case "id":
+      return "ID";
+    case "nombre":
+      return "NOMBRE";
+    case "email":
+      return "EMAIL";
+    case "entrada":
+      return "HORARIO";
+    case "notas":
+      return "NOTAS";
+    default:
+      return key;
   }
 };
 
-const translateChallengeKey = key => {
+const translateChallengeKey = (key) => {
   switch (key) {
-    case 'id': return 'ID';
-    case 'peso': return 'PESO';
-    case 'fat': return '%FAT';
-    case 'muscle': return '%MUSCL';
-    default: return key;
+    case "id":
+      return "ID";
+    case "peso":
+      return "PESO";
+    case "fat":
+      return "%FAT";
+    case "muscle":
+      return "%MUSCL";
+    default:
+      return key;
   }
 };
 
-const translateTimeSlotKey = key => {
+const translateTimeSlotKey = (key) => {
   switch (key) {
-    case 'dia': return 'DÍA';
-    case 'hora': return 'HORA';
-    case 'miembro': return 'MIEMBRO';
-    default: return key;
+    case "dia":
+      return "DÍA";
+    case "hora":
+      return "HORA";
+    case "miembro":
+      return "MIEMBRO";
+    default:
+      return key;
   }
 };
 
-const compliesWithSchema = args => {
-  const {schema, input} = args;
+const compliesWithSchema = (args) => {
+  const { schema, input } = args;
   const validation = schema.validate(input);
 
   return validation.error === undefined && validation.value !== undefined;
-}
+};
 
-const runSheetBoundary = args => {
-  const {schema, mapRowsFn, translateKeyFn, metadata, sheetRows} = args;
+const runSheetBoundary = (args) => {
+  const { schema, mapRowsFn, translateKeyFn, metadata, sheetRows } = args;
   const validation = schema.validate(sheetRows.map(mapRowsFn));
 
   if (validation.error) {
-    const docInfo = {...metadata, translateKey: translateKeyFn};
+    const docInfo = { ...metadata, translateKey: translateKeyFn };
     throw new SheetBoundaryError(docInfo, validation.error);
   }
 
-  return { 
-    data: validation.value, 
-    translateKey: translateKeyFn 
-  }
-}
+  return {
+    data: validation.value,
+    translateKey: translateKeyFn,
+  };
+};
 
-const runUserInputBoundary = args => {
-  const {schema, input} = args;
+const runUserInputBoundary = (args) => {
+  const { schema, input } = args;
   const validation = schema.validate(input);
 
   if (validation.error) {
     throw new UserInputBoundaryError(validation.error);
   }
 
-  return { 
-    data: validation.value, 
-  }
-}
+  return {
+    data: validation.value,
+  };
+};
 
-const getMemberIdDataFromSheet = (metadata, sheetRows) => 
+const getMemberIdDataFromSheet = (metadata, sheetRows) =>
   runSheetBoundary({
     schema: memberIdentificationArraySchema,
-    mapRowsFn: row => ({
+    mapRowsFn: (row) => ({
       id: getAsString(row.ID),
-      nombre: getAsString(row.NOMBRE)
+      nombre: getAsString(row.NOMBRE),
     }),
     translateKeyFn: translateMemberKey,
     metadata,
-    sheetRows
+    sheetRows,
   });
 
-const getMemberDataFromSheet = (metadata, sheetRows) => 
+const getMemberDataFromSheet = (metadata, sheetRows) =>
   runSheetBoundary({
     schema: memberArraySchema,
-    mapRowsFn: row => ({
+    mapRowsFn: (row) => ({
       id: getAsString(row.ID),
       nombre: getAsString(row.NOMBRE),
       email: getAsString(row.EMAIL),
       entrada: getAsHourString(row.HORARIO),
-      notas: getAsString(row.NOTAS)
+      notas: getAsString(row.NOTAS),
     }),
     translateKeyFn: translateMemberKey,
     metadata,
-    sheetRows
+    sheetRows,
   });
 
-const getChallengeDataFromSheet = (metadata, sheetRows) => 
+const getChallengeDataFromSheet = (metadata, sheetRows) =>
   runSheetBoundary({
     schema: challengeArraySchema,
-    mapRowsFn: row => ({
+    mapRowsFn: (row) => ({
       id: getAsString(row.ID),
       peso: row.PESO,
-      fat: row['%FAT'],
-      muscle: row['%MUSCL']
+      fat: row["%FAT"],
+      muscle: row["%MUSCL"],
     }),
     translateKeyFn: translateChallengeKey,
     metadata,
-    sheetRows
+    sheetRows,
   });
 
-const getTimetableDataFromSheet = (metadata, sheetRows) => 
+const getTimetableDataFromSheet = (metadata, sheetRows) =>
   runSheetBoundary({
     schema: timeSlotArraySchema,
-    mapRowsFn: row => ({
+    mapRowsFn: (row) => ({
       miembro: getAsString(row.MIEMBRO),
-      dia: getAsString(row['DÍA']),
+      dia: getAsString(row["DÍA"]),
       hora: getAsHourString(row.HORA),
     }),
     translateKeyFn: translateTimeSlotKey,
     metadata,
-    sheetRows
+    sheetRows,
   });
 
-const getMemberIDStringFromUserInput = input => 
+const getMemberIDStringFromUserInput = (input) =>
   runUserInputBoundary({
     schema: memberIDStringSchema,
     input: {
       id: input.id,
-    }
+    },
   });
 
-const getNewMemberFromUserInput = input => 
+const getNewMemberFromUserInput = (input) =>
   runUserInputBoundary({
     schema: newMemberSchema,
     input: {
       id: input.id,
       name: input.name,
-      hour: getAsHourString(input.hour)
-    }
+      hour: getAsHourString(input.hour),
+    },
   });
 
-const getNewReservationFromUserInput = input => 
+const getNewReservationFromUserInput = (input) =>
   runUserInputBoundary({
     schema: newReservationSchema,
     input: {
       member: input.member,
       day: input.day,
-      hour: getAsHourString(input.hour)
-    }
+      hour: getAsHourString(input.hour),
+    },
   });
 
-const getTimeFromUserInput = input => 
+const getTimeFromUserInput = (input) =>
   runUserInputBoundary({
     schema: timeSchema,
     input: {
       day: input.day,
-      hour: getAsHourString(input.hour)
-    }
+      hour: getAsHourString(input.hour),
+    },
   });
 
-const getHashFromUserInput = input => 
+const getHashFromUserInput = (input) =>
   runUserInputBoundary({
     schema: hashSchema,
     input: {
-      hash: input.hash
-    }
+      hash: input.hash,
+    },
   });
 
 module.exports = {
@@ -214,5 +222,5 @@ module.exports = {
   getTimetableDataFromSheet,
   translateChallengeKey,
   translateMemberKey,
-  translateTimeSlotKey
+  translateTimeSlotKey,
 };

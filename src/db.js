@@ -1,28 +1,28 @@
-const fs = require('fs');
+const fs = require("fs");
 
-const tablesStatements = 
-  fs.readFileSync(__dirname + '/tables.sql', { encoding: 'utf8' });
+const tablesStatements = fs.readFileSync(__dirname + "/tables.sql", {
+  encoding: "utf8",
+});
 
 const buildTables = (conn, done) => {
   conn.serialize(() => {
-    conn.run('PRAGMA foreign_keys = ON');
+    conn.run("PRAGMA foreign_keys = ON");
     conn.exec(tablesStatements, () => {
       done();
     });
   });
-}
+};
 
-const knex = require('knex')({
-  client: 'sqlite3',
+const knex = require("knex")({
+  client: "sqlite3",
   connection: {
-    filename: ':memory:'
+    filename: ":memory:",
   },
   pool: {
-    afterCreate: buildTables
+    afterCreate: buildTables,
   },
   useNullAsDefault: true,
   // debug: true,
 });
-
 
 module.exports = knex;

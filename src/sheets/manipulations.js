@@ -1,11 +1,11 @@
-const translateObject = translateKey => src => 
+const translateObject = (translateKey) => (src) =>
   Object.keys(src).reduce((dst, key) => {
     dst[translateKey(key)] = src[key];
     return dst;
   }, {});
 
-const reconciliateData = ctx => async newData => {
-  const { sheet, rows, translateKey, originalData} = ctx;
+const reconciliateData = (ctx) => async (newData) => {
+  const { sheet, rows, translateKey, originalData } = ctx;
   let editedCells = 0;
 
   for (let i = 0; i < rows.length; i++) {
@@ -19,11 +19,10 @@ const reconciliateData = ctx => async newData => {
 
     const oldDataItem = originalData[i];
     const newDataItem = newData[i];
-    
 
     let editedRow = false;
 
-    Object.keys(oldDataItem).forEach(key => {
+    Object.keys(oldDataItem).forEach((key) => {
       const oldValue = oldDataItem[key];
       const newValue = newDataItem[key];
       if (oldValue !== newValue) {
@@ -31,10 +30,9 @@ const reconciliateData = ctx => async newData => {
         editedRow = true;
         editedCells += 1;
       }
-    })
+    });
 
-    if (editedRow)
-      await currentRow.save();
+    if (editedRow) await currentRow.save();
   }
 
   // append new rows
@@ -45,22 +43,21 @@ const reconciliateData = ctx => async newData => {
     await sheet.addRows(newRows, { raw: true });
   }
 
-  return {editedCells};
+  return { editedCells };
 };
 
-const resetData = ({ sheet, translateKey }) => async newData => {
+const resetData = ({ sheet, translateKey }) => async (newData) => {
   const headerValues = [...sheet.headerValues];
   await sheet.clear();
 
-  if (newData.length === 0)
-    return 
+  if (newData.length === 0) return;
 
   const newRows = newData.map(translateObject(translateKey));
-  await sheet.setHeaderRow(headerValues)
+  await sheet.setHeaderRow(headerValues);
   await sheet.addRows(newRows, { raw: true });
-}
+};
 
 module.exports = {
   reconciliateData,
-  resetData
-}
+  resetData,
+};

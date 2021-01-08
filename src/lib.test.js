@@ -25,7 +25,7 @@ describe('setMissingUserIDs', () => {
       {nombre: 'Eduardo Nuñez', email: 'enunez@mail.com'},
     ]
 
-    expected = [
+    const expected = [
       {nombre: 'Julio Castro', id: 'jcastro', email: 'jcastro@mail.com'},
       {nombre: 'Víctor Sánchez', id: 'victor_sanchez', email: 'vsanchez@mail.com'},
       {nombre: 'Eduardo Nuñez', id: 'eduardo_nunez', email: 'enunez@mail.com'},
@@ -42,7 +42,7 @@ describe('setMissingUserIDs', () => {
       {nombre: 'Jorge Martinez'},
     ]
 
-    expected = [
+    const expected = [
       {nombre: 'Jorge Martinez', id: 'jorge_martinez', email: 'jmartinez@mail.com'},
       {nombre: 'Víctor Sánchez', id: 'victor_sanchez', email: 'vsanchez@mail.com'},
       {nombre: 'Eduardo Nuñez', id: 'eduardo_nunez', email: 'enunez@mail.com'},

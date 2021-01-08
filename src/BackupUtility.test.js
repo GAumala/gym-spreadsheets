@@ -1,5 +1,4 @@
 const dbConnection = require('./db.js')
-const db = require('./db/queries.js')
 const BackupUtility = require('./BackupUtility.js');
 
 jest.mock('./lib/dateFormatters.js', () => ({

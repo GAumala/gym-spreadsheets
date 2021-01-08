@@ -10,7 +10,6 @@ const createSheetsAPI = (cacheWriter) => {
   if (!cacheWriter)
     return methods;
 
-  const systemTime = Date.now();
   const {
     createTimeTableSheet,
     loadMembers,

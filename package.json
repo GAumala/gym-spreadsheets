@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint cli.js src/",
     "test": "jest"
   },
   "author": "",
@@ -19,6 +20,7 @@
     "yargs": "^16.1.1"
   },
   "devDependencies": {
+    "eslint": "^7.17.0",
     "jest": "^26.6.3"
   }
 }

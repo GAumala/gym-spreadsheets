@@ -153,7 +153,7 @@ describe('addNewMember', () => {
         data: testingMembers.slice(0, 2),
         reconciliateFn: reconciliateMembers
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -369,7 +369,7 @@ describe('changeReservationHourForADay', () => {
         data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -426,7 +426,7 @@ describe('changeReservationHourForADay', () => {
         data: testingMembers,
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         data: [
           {
             miembro: 'jeff',
@@ -521,7 +521,7 @@ describe('changeReservationHourForADay', () => {
         data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -573,7 +573,7 @@ describe('changeReservationHourForADay', () => {
         data: testingMembers.slice(0, 2),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         timeTableMissing: true
       }))
     };
@@ -618,7 +618,7 @@ describe('listMembersThatReservedAtTime', () => {
         data: testingMembers,
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      loadReservations: jest.fn(title => Promise.resolve({
+      loadReservations: jest.fn(() => Promise.resolve({
         data: [
           { 
             miembro: 'jeff',
@@ -749,7 +749,7 @@ describe('createTimeTableSheet', () => {
         data: testingMembers.slice(0, 3),
         reconciliateFn: jest.fn(() => Promise.resolve())
       })),
-      createTimeTableSheet: jest.fn(title => Promise.resolve({
+      createTimeTableSheet: jest.fn(() => Promise.resolve({
         data: [],
         reconciliateFn: reconciliateReservations
       }))

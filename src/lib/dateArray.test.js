@@ -3,7 +3,6 @@ const {
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,
   moveDateArrayToFutureDay,
-  moveDateArrayToFutureTime,
 } = require('./dateArray.js');
 
 describe('moveDateArrayToNextMonthStart', () => {

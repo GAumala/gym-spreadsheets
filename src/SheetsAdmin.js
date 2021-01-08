@@ -2,12 +2,8 @@ const boundary = require('./boundary.js');
 const { compose, identity } = require('./lib/fp.js')
 const lib = require('./lib.js');
 const { 
-  numberToThousandthInt, 
   thousandthIntToNumber 
 } = require('./lib/units.js');
-const {
-  getMonthShortName
-} = require('./lib/dateFormatters.js');
 const getMessage = require('./messages.js');
 const {
   convertDateToSlot,
@@ -71,7 +67,6 @@ const populateReservationTable = async (admin, dateArray, useAll) => {
 const updateTimeTableWithNewMember = async (admin, dateArray, newMember) => {
   const { 
     timeTableMissing, 
-    data: timeTableData,
     reconciliateFn: reconciliateTimeSlots
   } = await populateReservationTable(admin, dateArray);
 
@@ -132,7 +127,7 @@ class SheetsAdmin {
    */
   async pickChallengeWinners() {
     const { sheetsAPI, db } = this;
-    const { data: memberData } = await this.populateMemberTable();
+    await this.populateMemberTable();
 
     const { startData, endData } = await sheetsAPI.loadChallengeContestants();
 
@@ -156,7 +151,7 @@ class SheetsAdmin {
    */
   async createTimeTableSheet(args) {
     const { sheetsAPI, db, clock } = this;
-    const { data: memberData } = await populateMemberTable(this);
+    await populateMemberTable(this);
 
     const dateArray = clock.getFullDateArray();
     const [year, month] = args['this-month'] 
@@ -180,7 +175,7 @@ class SheetsAdmin {
    * miembro.
    */
   async addNewMember(args) {
-    const { sheetsAPI, db, clock } = this;
+    const { db, clock } = this;
     const { data: newMemberData } = boundary.getNewMemberFromUserInput(args);
     const newMember = { 
       nombre: newMemberData.name, 
@@ -198,7 +193,6 @@ class SheetsAdmin {
     await db.insertNewMember(newMember)
 
     const dateArray = clock.getFullDateArray();
-    const [year, month] = dateArray;
     const nextMonthDateArray = moveDateArrayToNextMonthStart(dateArray);
 
     await updateTimeTableWithNewMember(this, dateArray, newMember);
@@ -224,7 +218,7 @@ class SheetsAdmin {
    * Arroja error si la reservación especificada ya existe.
    */
   async changeReservationHourForADay(args) {
-    const { sheetsAPI, db, clock } = this;
+    const { db, clock } = this;
     const { data: newReservationData } = boundary.getNewReservationFromUserInput(args);
 
     await populateMemberTable(this);
@@ -234,7 +228,6 @@ class SheetsAdmin {
 
     const { 
       timeTableMissing, 
-      data: timeTableData,
       sheetTitle,
       reconciliateFn
     } = await populateReservationTable(this, dateArray);
@@ -264,7 +257,7 @@ class SheetsAdmin {
    * actual.
    */
   async listMembersThatReservedAtTime(args) {
-    const { sheetsAPI, db, clock } = this;
+    const { db, clock } = this;
     const { data: timeData } = boundary.getTimeFromUserInput(args);
 
     await populateMemberTable(this);
@@ -285,9 +278,7 @@ class SheetsAdmin {
     // Populate reservations table with data starting from today onwards.
     const { 
       timeTableMissing, 
-      data: timeTableData,
       sheetTitle,
-      reconciliateFn
     } = await populateReservationTable(this, dateArray);
 
     if (timeTableMissing)
@@ -310,7 +301,7 @@ class SheetsAdmin {
    * Remueve un miembro y todas sus ocurrencias de todos los spreadsheets.
    */
   async removeMember(args) {
-    const { sheetsAPI, db, clock } = this;
+    const { clock } = this;
     const { data: memberData } = boundary.getMemberIDStringFromUserInput(args);
 
     const { 
@@ -324,7 +315,6 @@ class SheetsAdmin {
       throw new FatalError('MEMBER_NOT_FOUND', { id: targetID });
 
     const dateArray = clock.getFullDateArray();
-    const [year, month] = dateArray;
     const nextMonthDateArray = moveDateArrayToNextMonthStart(dateArray);
 
     await removeMemberFromTimeTable(this, dateArray, targetID)

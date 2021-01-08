@@ -43,7 +43,7 @@ const createMonthSlots = (year, month) => {
 }
 
 const createFutureSlotsAtHour = (dateArray, specifiedHour) => {
-  const [year, month, date] = dateArray;
+  const [year, month] = dateArray;
   const slots = [];
   const totalDays = calendar.getNumberOfDaysInMonth(year, month);
   const firstWeekDay = calendar.getFirstDayOfMonth(year, month);
@@ -82,9 +82,7 @@ const breakTimeSlotsWithDate = (slots, dateArray) => {
     return { past: [], future: [] }
 
   const dateAsSlot = convertDateToSlot(...dateArray)
-  
   const firstSlot = slots[0];
-  const lastSlot = slots[slots.length - 1];
 
   const isBeforeFirstSlot = 
     compareTimeSlots(dateAsSlot, firstSlot) !== 1;

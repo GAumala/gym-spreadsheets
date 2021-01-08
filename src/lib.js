@@ -1,10 +1,6 @@
 const { 
   getMonthShortName, 
 } = require('./lib/dateFormatters.js');
-const {
-  compareTimeSlots,
-  convertDateToSlot,
-} = require('./lib/timeSlot.js');
 const normalizeString = require('normalize-for-search');
 
 const createUserID = (name, suffix = "") => 
@@ -16,8 +12,8 @@ const createUserID = (name, suffix = "") =>
 const setMissingUserIDs = rows => {
   const knownIds = new Set();
   let missingIds = false;
-  rows.forEach((user, index) => {
-    const { id, nombre } = user;
+  rows.forEach(user => {
+    const { id } = user;
     if (id)
       knownIds.add(id);
     else

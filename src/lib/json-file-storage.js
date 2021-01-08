@@ -30,6 +30,7 @@ const read = async ({ storageDir, key, fileName }) => {
     const contents = await readFile(filePath, { encoding: 'utf8' });
     return JSON.parse(contents);
   } catch (e) {
+    return undefined;
   }
 }
 

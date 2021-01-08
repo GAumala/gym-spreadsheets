@@ -102,19 +102,6 @@ const runUserInputBoundary = args => {
   }
 }
 
-const runCacheBoundary = args => {
-  const {schema, input} = args;
-  const validation = schema.validate(input);
-
-  if (validation.error) {
-    throw new CacheBoundaryError(validation.error);
-  }
-
-  return { 
-    data: validation.value, 
-  }
-}
-
 const getMemberIdDataFromSheet = (metadata, sheetRows) => 
   runSheetBoundary({
     schema: memberIdentificationArraySchema,

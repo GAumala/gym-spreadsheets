@@ -34,7 +34,7 @@ const moveDateArrayToNextTrainingHour = dateArray => {
 }
 
 const moveDateArrayToFutureDay = (dateArray, targetDay) => {
-  const [year, month, day, hour, minute] = targetDay < dateArray[2] 
+  const [year, month] = targetDay < dateArray[2] 
     ? moveDateArrayToNextMonthStart(dateArray)
     : dateArray;
   const lastMonthDay = calendar.getNumberOfDaysInMonth(year, month);
@@ -75,13 +75,13 @@ const moveDateArrayToMinuteEarlier = (dateArray) => {
  * The timeString argument is meant to be in format hh:mm
  */
 const changeDateArrayHourAndMinutes = (dateArray, timeString) => {
-  const [year, month, day, hour, minute] = dateArray;
+  const [year, month, day] = dateArray;
   const [specifiedHour, specifiedMinute] = parseHour(timeString) 
   return [year, month, day, specifiedHour, specifiedMinute];
 }
 
 const dateArrayToReadableString = (dateArray) => {
-  const [year, month, day, hour, minute] = dateArray;
+  const [, month, day, hour, minute] = dateArray;
   const readableMonth = getMonthLongName(month);
   const readableWeekDay = getDayLongName(calendar.getWeekDay(...dateArray));
   const readableHour = formatHour(hour, minute);

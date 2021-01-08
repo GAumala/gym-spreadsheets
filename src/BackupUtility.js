@@ -70,7 +70,7 @@ const undoWithFile = async (sheetsAPI, file)  => {
     }
 
     case 'new-timetable': {
-      const {sheetTitle, data } = file
+      const { sheetTitle } = file
       return sheetsAPI.deleteTimeTableSheet(sheetTitle);
     }
   }

@@ -1,5 +1,5 @@
 const createSheetBoundaryErrorMsg = (docInfo, details) => {
-  const { title, translateKey } = docInfo;
+  const { translateKey } = docInfo;
   const msgStart = `Por favor revisa los datos ingresados en el documento '${docInfo.docTitle}'.`;
   return details.reduce((msg, detailItem) => {
     const { path, type, context } = detailItem
@@ -81,8 +81,8 @@ class SheetAPIError extends Error {
   constructor(apiError) {
     super(apiError.message)
     this.name = 'SheetAPIError'
-    this.message = joiError.message
-    this.actualError = actualError.details;
+    this.message = apiError.message
+    this.actualError = apiError;
     this.isCustom = true;
   }
   
@@ -95,7 +95,7 @@ class SheetAPIError extends Error {
       }
     }
   }
-};
+}
 
 class SheetBoundaryError extends Error {
   constructor(docInfo, joiError) {

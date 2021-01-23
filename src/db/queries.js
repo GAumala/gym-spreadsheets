@@ -1,4 +1,5 @@
 const knex = require("../db.js");
+const { reduceArrayToObject, selectKeys } = require("../lib/fp.js");
 const { trainingHours } = require("../lib/constants.js");
 const { FatalError } = require("../errors.js");
 const SLOT_CAPACITY = 10;
@@ -23,7 +24,7 @@ const insertChallengeStart = (data, db = knex) =>
 const insertChallengeEnd = (data, db = knex) =>
   db.table("challengeEnd").insert(data);
 const insertReservation = (data, db = knex) => {
-  if (!data.length || data.length < 330)
+  if (!Array.isArray(data) || data.length < 330)
     return db.table("reservacion").insert(data);
 
   return db.batchInsert("reservacion", data, 330);
@@ -33,7 +34,7 @@ const getOrderedTimetable = (db = knex) =>
   db.from("reservacion").select("*").orderBy("dia", "hora");
 
 const findMiembroById = (id, db = knex) =>
-  db.select("*").from("miembro").where({ id });
+  db.select("*").from("miembro").where({ id }).first();
 
 const findChallengeWinners = (db = knex) =>
   db
@@ -124,6 +125,9 @@ const findMembersThatReservedAtSlot = (slot, db = knex) =>
     .where({ dia: slot.dia, hora: slot.hora })
     .then((rows) => rows.map(({ miembro }) => miembro));
 
+const findMemberReservationsOnEachDay = (miembro, dias, db = knex) =>
+  db.from("reservacion").select("*").where({ miembro }).whereIn("dia", dias);
+
 const getReservationsAtSlot = (slot, db = knex) =>
   db
     .from("reservacion")
@@ -131,8 +135,16 @@ const getReservationsAtSlot = (slot, db = knex) =>
     .where({ dia: slot.dia, hora: slot.hora })
     .innerJoin("miembro", "reservacion.miembro", "miembro.id");
 
-const deleteMemberReservationsForDay = (miembro, dia, db = knex) =>
-  db.from("reservacion").where({ miembro, dia }).delete();
+const deleteMemberReservationsForDay = (miembro, dia, db = knex) => {
+  if (Array.isArray(dia))
+    return db
+      .from("reservacion")
+      .where({ miembro })
+      .whereIn("dia", dia)
+      .delete();
+
+  return db.from("reservacion").where({ miembro, dia }).delete();
+};
 
 const deleteMemberReservations = (miembro, db = knex) =>
   db.from("reservacion").where({ miembro }).delete();
@@ -209,6 +221,40 @@ const deleteAllMemberReservations = (id) =>
     return getOrderedTimetable(trx);
   });
 
+const rearrangeReservationRows = (rearrangements) =>
+  knex.transaction(async (trx) => {
+    const { member, daysToRearrange, slotsToAdd } = rearrangements;
+    await deleteMemberReservationsForDay(member, daysToRearrange, trx);
+
+    const newReservations = slotsToAdd.map((ts) => ({
+      ...ts,
+      miembro: member,
+    }));
+    if (newReservations.length > 0)
+      await insertReservation(newReservations, trx);
+
+    // check constraints before returning a result
+    const violations = await checkReservationSlotConstraint(trx);
+    if (violations.length > 0)
+      throw new FatalError("ADDED_EXCESS_RESERVATIONS", { violations });
+
+    const rows = await getOrderedTimetable(trx);
+
+    const newRows = await findMemberReservationsOnEachDay(
+      member,
+      daysToRearrange,
+      trx
+    );
+    const newRowsByDia = reduceArrayToObject(newRows, "dia");
+    const rearrangedSlots = daysToRearrange.map((dia) => {
+      const row = newRowsByDia[dia];
+      if (!row) return { dia, deleted: true };
+      return selectKeys(row, "dia", "hora");
+    });
+
+    return { rows, rearrangedSlots };
+  });
+
 module.exports = {
   changeReservationHourForADay,
   checkMemberEntradaConstraint,
@@ -221,6 +267,7 @@ module.exports = {
   insertMiembro,
   insertNewMember,
   pickChallengeWinners,
+  rearrangeReservationRows,
   setMemberRows,
   setReservationRows,
   updateReservationsWithNewMember,

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`listMembersThatReservedAtTime error path with no reservations returns a nice error msg 1`] = `"No existen reservaciones para la fecha: Lunes, 23 de Noviembre 18:00"`;
+
+exports[`listMembersThatReservedAtTime happy path with empty arguments returns a readable message with member names 1`] = `
+"Fecha: Lunes, 25 de Enero 06:00
+Miembros:
+
+Jeff
+Ben
+
+2 en total."
+`;

@@ -30,6 +30,8 @@ const handleReservationsCommand = (argv) =>
     switch (argv.operation) {
       case "add":
         return admin.changeReservationHourForADay(argv);
+      case "rearrange":
+        return admin.rearrangeReservations(argv);
       case "list":
         return admin.listMembersThatReservedAtTime(argv);
       case "create-sheet":
@@ -84,6 +86,7 @@ const buildReservationsCommand = (yargs) =>
       alias: ["hours"],
       describe: "A string with a FUTURE hour in the format hh:mm (24 hrs.)",
     })
+    .implies("day", "hour")
     .option("member", {
       describe: "A string with a  member ID",
     })
@@ -91,7 +94,16 @@ const buildReservationsCommand = (yargs) =>
       describe: "Use this month instead of next relative to system time",
       boolean: true,
     })
-    .implies("day", "hour")
+    .option("add-days", {
+      describe:
+        "a sequence of reservations to add, containing integers (days) and strings (hours)",
+      array: true,
+    })
+    .option("remove-days", {
+      describe:
+        "a sequence of reservations to remove, containing only integers (days)",
+      array: true,
+    })
     .example(
       "$0 reservations add --member carlos_sanchez --day 25 --hour 06:00",
       'adds a reservation for member with ID "carlos_sanchez" on the 25th at 6:00'
@@ -115,6 +127,18 @@ const buildReservationsCommand = (yargs) =>
     .example(
       "$0 reservations create-sheet --this-month",
       "creates the reservation sheet for this month relative to system time"
+    )
+    .example(
+      "$0 reservations rearrange --member carlos_sanchez --add-days 28 30 2 07:00",
+      'Adds reservations for member with ID "carlos_sanchez" on the 28th, 30th and 2nd (next month) at 07:00'
+    )
+    .example(
+      "$0 reservations rearrange --member carlos_sanchez --remove-days 30 31",
+      'Removes any reservations for member with ID "carlos_sanchez" on the 30th and 31st'
+    )
+    .example(
+      "$0 reservations rearrange --member carlos_sanchez --add-days 28 07:00 29 08:00 --remove-days 30 31",
+      'Adds reservations for member with ID "carlos_sanchez" deleting on 28th at 07:00 and 29 at 08:00. Also deletes any reservations for that member on the 30th and 31st'
     );
 
 const buildMembersCommand = (yargs) =>
@@ -160,7 +184,7 @@ const buildHistoryCommand = (yargs) =>
 require("yargs")
   .command(
     "reservations <operation>",
-    "Manage the reservations document. Please note that you can only read and write reservations in the future.",
+    "Manage the reservations document. Please note that you can only edit reservations in the future.",
     buildReservationsCommand,
     handleReservationsCommand
   )

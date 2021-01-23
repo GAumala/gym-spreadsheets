@@ -52,6 +52,11 @@ const createUserInputBoundaryErrorMsg = (details) => {
         `\nEl campo '${fieldName}' solo permite números, se ingresó '${context.value}'.`
       );
 
+    if (type === "array.unique")
+      return (
+        msg +
+        `\nEl campo '${fieldName}' no puede incluir dos veces el mismo valor '${context.value}'.`
+      );
     return (
       msg +
       `\n'${context.value}' no es un valor permitido en el campo '${fieldName}' (tipo: ${type}).`
@@ -81,6 +86,12 @@ const getFatalErrorMsg = (key, params) => {
             `Hay demasiadas reservas (${count}) para la fecha ${dia} ${hora}. Por favor remueve alguna reserva temporal.`
         )
         .join("\n");
+    case "ADDED_EXCESS_RESERVATIONS":
+      return (
+        "No se pudieron agregar las reservaciones solicitadas por que los siguientes horarios ya están llenos:\n\n" +
+        params.violations.map(({ dia, hora }) => `${dia} ${hora}`).join("\n") +
+        "\n\nLa operación se cancelo antes de modificar algun spreadsheet. Por favor vuelve a intentar con diferentes horarios."
+      );
     case "SLOT_IS_FULL":
       return `No se pueden agregar mas miembros para el día ${params.dia} a las ${params.hora}. Por favor busca otro horario.`;
     case "ALREADY_RESERVED":
@@ -91,6 +102,17 @@ const getFatalErrorMsg = (key, params) => {
       return `No se encontraron datos con el hash ${params.hash}.`;
     case "HISTORY_FILE_CORRUPTED":
       return `No se pudo deshacer la operación porque el archivo de tipo ${params.type} se ha corrompido.`;
+    case "NO_RESERVATIONS_INPUT":
+      return `Por favor ingresa las fechas de las reservaciones a modificar.`;
+    case "INVALID_TIME_SLOTS_INPUT_ARRAY": {
+      const line1 = `Error de sintaxis en los horarios ingresados: "${params.value.join(
+        " "
+      )}"`;
+      const line2 = 'Debes alternar días con horas. Ejemplo: "1 07:00 2 17:00"';
+      const line3 =
+        'También puedes agrupar varios días con la misma hora, pero procura siempre terminar con una hora. Ejemplo: "1 2 3 07:00 4 5 17:00"';
+      return line1 + "\n" + line2 + "\n" + line3;
+    }
     default:
       `Error fatal desconocido (${key}) al procesar tu solicitud. params: ${params}`;
   }

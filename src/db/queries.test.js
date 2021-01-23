@@ -19,9 +19,14 @@ describe("findMiembroById", () => {
     };
     await q.insertMiembro(row);
 
-    const expected = [{ ...row, rowid: expect.any(Number) }];
-    const results = await q.findMiembroById("viviana_ruiz");
-    expect(results).toEqual(expected);
+    const expected = { ...row, rowid: expect.any(Number) };
+    const result = await q.findMiembroById("viviana_ruiz");
+    expect(result).toEqual(expected);
+  });
+
+  it("returns undefined if member does not exist", async () => {
+    const result = await q.findMiembroById("no_existe");
+    expect(result).toBeUndefined();
   });
 });
 
@@ -678,5 +683,284 @@ describe("updateReservationsWithNewMember", () => {
     } = await q.updateReservationsWithNewMember(newMiembro, slots);
     expect(newData).toHaveLength(12);
     expect(unavailableDays).toEqual(["26-Jue"]);
+  });
+});
+
+describe("rearrangeReservationRows", () => {
+  beforeEach(async () => {
+    await q.clear();
+
+    const miembros = [
+      {
+        id: "jeff",
+        nombre: "Jeff",
+        email: "",
+        entrada: "07:00",
+        notas: "",
+      },
+      {
+        id: "tom",
+        nombre: "Tom",
+        email: "",
+        entrada: "07:00",
+        notas: "",
+      },
+      {
+        id: "alex",
+        nombre: "Alex",
+        email: "",
+        entrada: "18:00",
+        notas: "",
+      },
+    ];
+
+    const reservaciones = [
+      {
+        miembro: "jeff",
+        dia: "28-Lun",
+        hora: "07:00",
+      },
+      {
+        miembro: "tom",
+        dia: "28-Lun",
+        hora: "07:00",
+      },
+      {
+        miembro: "jeff",
+        dia: "29-Mar",
+        hora: "07:00",
+      },
+      {
+        miembro: "tom",
+        dia: "29-Mar",
+        hora: "07:00",
+      },
+      {
+        miembro: "jeff",
+        dia: "30-Mié",
+        hora: "07:00",
+      },
+      {
+        miembro: "tom",
+        dia: "30-Mié",
+        hora: "07:00",
+      },
+      {
+        miembro: "jeff",
+        dia: "31-Jue",
+        hora: "07:00",
+      },
+      {
+        miembro: "tom",
+        dia: "31-Jue",
+        hora: "07:00",
+      },
+    ];
+
+    await q.setMemberRows(miembros);
+    await q.setReservationRows(reservaciones);
+  });
+
+  it("can rearrange with deletes only", async () => {
+    const rearrangements = {
+      member: "jeff",
+      daysToRearrange: ["29-Mar", "30-Mié", "31-Jue"],
+      slotsToAdd: [],
+    };
+
+    const res = await q.rearrangeReservationRows(rearrangements);
+    expect(res).toEqual({
+      rows: [
+        {
+          miembro: "jeff",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "29-Mar",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "30-Mié",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "31-Jue",
+          hora: "07:00",
+        },
+      ],
+      rearrangedSlots: [
+        {
+          dia: "29-Mar",
+          deleted: true,
+        },
+        {
+          dia: "30-Mié",
+          deleted: true,
+        },
+        {
+          dia: "31-Jue",
+          deleted: true,
+        },
+      ],
+    });
+  });
+
+  it("can rearrange adding and deleting", async () => {
+    const rearrangements = {
+      member: "jeff",
+      daysToRearrange: ["29-Mar", "30-Mié", "31-Jue"],
+      slotsToAdd: [
+        {
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+        {
+          dia: "30-Mié",
+          hora: "18:00",
+        },
+      ],
+    };
+
+    const res = await q.rearrangeReservationRows(rearrangements);
+    expect(res).toEqual({
+      rows: [
+        {
+          miembro: "jeff",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "29-Mar",
+          hora: "07:00",
+        },
+        {
+          miembro: "jeff",
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+        {
+          miembro: "tom",
+          dia: "30-Mié",
+          hora: "07:00",
+        },
+        {
+          miembro: "jeff",
+          dia: "30-Mié",
+          hora: "18:00",
+        },
+        {
+          miembro: "tom",
+          dia: "31-Jue",
+          hora: "07:00",
+        },
+      ],
+      rearrangedSlots: [
+        {
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+        {
+          dia: "30-Mié",
+          hora: "18:00",
+        },
+        {
+          dia: "31-Jue",
+          deleted: true,
+        },
+      ],
+    });
+  });
+
+  it("can rearrange with member with no reservations", async () => {
+    const rearrangements = {
+      member: "alex",
+      daysToRearrange: ["29-Mar", "30-Mié", "31-Jue"],
+      slotsToAdd: [
+        {
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+      ],
+    };
+
+    const res = await q.rearrangeReservationRows(rearrangements);
+    expect(res).toEqual({
+      rows: [
+        {
+          miembro: "jeff",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "28-Lun",
+          hora: "07:00",
+        },
+        {
+          miembro: "jeff",
+          dia: "29-Mar",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "29-Mar",
+          hora: "07:00",
+        },
+        {
+          miembro: "alex",
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+        {
+          miembro: "jeff",
+          dia: "30-Mié",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "30-Mié",
+          hora: "07:00",
+        },
+        {
+          miembro: "jeff",
+          dia: "31-Jue",
+          hora: "07:00",
+        },
+        {
+          miembro: "tom",
+          dia: "31-Jue",
+          hora: "07:00",
+        },
+      ],
+      rearrangedSlots: [
+        {
+          dia: "29-Mar",
+          hora: "18:00",
+        },
+        {
+          dia: "30-Mié",
+          deleted: true,
+        },
+        {
+          dia: "31-Jue",
+          deleted: true,
+        },
+      ],
+    });
   });
 });

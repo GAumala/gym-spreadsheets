@@ -2,6 +2,9 @@ const {
   breakTimeSlotsWithDate,
   convertDateToSlot,
   createMonthSlots,
+  formatDayForTimeSlot,
+  isCLTimeSlotsArrayValid,
+  foldCLTimeSlotsArray,
 } = require("./timeSlot.js");
 
 describe("createMonthSlots", () => {
@@ -373,5 +376,46 @@ describe("breakTimeSlotsWithDate", () => {
     const { past, future } = breakTimeSlotsWithDate(slots, dateArray);
     expect(past).toEqual(slots);
     expect(future).toEqual([]);
+  });
+});
+
+describe("isCLTimeSlotsArrayValid", () => {
+  it.each([[["09:00", 1, 2]], [[1, "09:00", 2]]])(
+    "considers %j to be invalid",
+    (array) => {
+      expect(isCLTimeSlotsArrayValid(array)).toBe(false);
+    }
+  );
+
+  it.each([
+    [[]],
+    [[1, "07:00", 2, "08:00", 3, "09:00"]],
+    [[1, 2, 3, 4, "09:00"]],
+    [[1, 2, 3, "07:00", 5, "08:00"]],
+  ])("considers %j to be valid", (array) => {
+    expect(isCLTimeSlotsArrayValid(array)).toBe(true);
+  });
+});
+
+describe("foldCLTimeSlotsArray", () => {
+  it("returns an array with folded items", () => {
+    const inputArray = [27, 31, "07:00", 5, "08:00"];
+    expect(foldCLTimeSlotsArray(inputArray)).toEqual([
+      { diaInt: 27, hora: "07:00" },
+      { diaInt: 31, hora: "07:00" },
+      { diaInt: 5, hora: "08:00" },
+    ]);
+  });
+});
+
+describe("formatDayForTimeSlot", () => {
+  it.each([
+    [2020, 12, 21, "21-Lun"],
+    [2020, 12, 23, "23-Mié"],
+    [2020, 12, 27, "27-Dom"],
+    [2021, 1, 1, "01-Vie"],
+    [2021, 1, 31, "31-Dom"],
+  ])("formats %d-%d-%d as %s", (year, month, day, result) => {
+    expect(formatDayForTimeSlot(year, month, day)).toEqual(result);
   });
 });

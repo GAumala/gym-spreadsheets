@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rearrangeReservations error path breaking reservation constraints with two timetables throws an error with readable message explaining the problem 1`] = `
+"No se pudieron agregar las reservaciones solicitadas por que los siguientes horarios ya están llenos:
+
+02-Sáb 08:00
+
+La operación se cancelo antes de modificar algun spreadsheet. Por favor vuelve a intentar con diferentes horarios."
+`;
+
+exports[`rearrangeReservations fails when input is empty 1`] = `[FatalError: Por favor ingresa las fechas de las reservaciones a modificar.]`;
+
+exports[`rearrangeReservations fails when member is not found 1`] = `[FatalError: No se encontró un miembro con ID: not_user.]`;
+
+exports[`rearrangeReservations happy path with one timetable returns a readable message with the modified reservations 1`] = `
+"Se modificaron las reservaciones de Ben:
+
+28-Lun <ELIMINADA>
+29-Mar 08:00
+30-Mié 08:00
+01-Vie <SIN HOJA>
+02-Sáb <SIN HOJA>
+"
+`;
+
+exports[`rearrangeReservations happy path with two timetable returns a readable message with the modified reservations 1`] = `
+"Se modificaron las reservaciones de Ben:
+
+28-Lun <ELIMINADA>
+29-Mar 08:00
+30-Mié 08:00
+01-Vie <ELIMINADA>
+02-Sáb 08:00
+"
+`;

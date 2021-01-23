@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`removeMember fails when member is not found 1`] = `[FatalError: No se encontró un miembro con ID: not_user.]`;

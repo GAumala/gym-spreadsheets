@@ -1,5 +1,5 @@
 const boundary = require("./boundary.js");
-const { compose, identity } = require("./lib/fp.js");
+const { compose, identity, withValue } = require("./lib/fp.js");
 const lib = require("./lib.js");
 const { thousandthIntToNumber } = require("./lib/units.js");
 const getMessage = require("./messages.js");
@@ -15,6 +15,7 @@ const {
   moveDateArrayToFutureDay,
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,
+  moveDateArrayToTodaysDawn,
 } = require("./lib/dateArray.js");
 const calendar = require("./lib/calendar.js");
 const { createChallengeDBRows } = require("./db/tableHelpers.js");
@@ -89,6 +90,34 @@ const removeMemberFromTimeTable = async (admin, dateArray, id) => {
 
   const rows = await admin.db.deleteAllMemberReservations(id);
   return reconciliateFn(rows);
+};
+
+const rearrangeTimeTable = async (admin, dateArray, rearrangements) => {
+  if (rearrangements.daysToRearrange.length === 0) return [];
+
+  const { timeTableMissing, reconciliateFn } = await populateReservationTable(
+    admin,
+    dateArray,
+    true
+  );
+
+  if (timeTableMissing)
+    // no sheet to update
+    return {
+      commitChanges: () => Promise.resolve(),
+      rearrangedSlots: rearrangements.daysToRearrange.map((dia) => ({
+        dia,
+        noTimeTable: true,
+      })),
+    };
+
+  const { rows, rearrangedSlots } = await admin.db.rearrangeReservationRows(
+    rearrangements
+  );
+  return {
+    rearrangedSlots,
+    commitChanges: () => reconciliateFn(rows),
+  };
 };
 
 class SheetsAdmin {
@@ -324,6 +353,57 @@ class SheetsAdmin {
     await reconciliateMembers(newMembers);
 
     return {};
+  }
+
+  async rearrangeReservations(args) {
+    const { db, clock } = this;
+    const { data: changesData } = boundary.getReservationChangesFromUserInput(
+      args
+    );
+
+    const dateArrays = withValue(clock.getFullDateArray(), (v) => ({
+      today: moveDateArrayToTodaysDawn(v),
+      nextMonth: moveDateArrayToNextMonthStart(v),
+    }));
+
+    const rearrangements = lib.getRearrangementsByMonth(
+      dateArrays.today,
+      changesData
+    );
+    if (rearrangements.isEmpty)
+      throw new FatalError("NO_RESERVATIONS_INPUT", {});
+
+    await populateMemberTable(this);
+    const memberRow = await db.findMiembroById(changesData.member);
+    if (!memberRow)
+      throw new FatalError("MEMBER_NOT_FOUND", { id: changesData.member });
+
+    const results = [
+      await rearrangeTimeTable(
+        this,
+        dateArrays.today,
+        rearrangements.thisMonth
+      ),
+      await rearrangeTimeTable(
+        this,
+        dateArrays.nextMonth,
+        rearrangements.nextMonth
+      ),
+    ];
+
+    const rearrangedSlots = results
+      .map(({ rearrangedSlots }) => rearrangedSlots)
+      .flat();
+
+    // update spreadsheets sequentially
+    await results[0].commitChanges(); // this month
+    await results[1].commitChanges(); // next month
+
+    const name = memberRow.nombre;
+    return {
+      data: rearrangedSlots,
+      message: getMessage("LIST_REARRANGEMENTS", { rearrangedSlots, name }),
+    };
   }
 }
 

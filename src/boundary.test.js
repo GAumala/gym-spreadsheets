@@ -1,8 +1,9 @@
-const { SheetBoundaryError } = require("./errors.js");
+const { SheetBoundaryError, UserInputBoundaryError } = require("./errors.js");
 const {
   getChallengeDataFromSheet,
   getMemberDataFromSheet,
   getTimetableDataFromSheet,
+  getReservationChangesFromUserInput,
 } = require("./boundary.js");
 
 const sheetMetadata = {
@@ -234,5 +235,68 @@ describe("getTimetableDataFromSheet", () => {
 
     const sheetData = getTimetableDataFromSheet(sheetMetadata, rows);
     expect(sheetData.data).toEqual(expectedList);
+  });
+});
+
+describe("getReservationChangesFromUserInput", () => {
+  it("accepts valid data and returns a sanitized value", () => {
+    const userInput = {
+      member: "jeff",
+      ["add-days"]: ["1", "3", "8:00", 5, "17:00"],
+      ["remove-days"]: [2, 6],
+    };
+    const sanitizedInput = getReservationChangesFromUserInput(userInput);
+    expect(sanitizedInput.data).toEqual({
+      member: "jeff",
+      addDays: [1, 3, "08:00", 5, "17:00"],
+      removeDays: [2, 6],
+    });
+  });
+
+  it("accepts repeated hours if the are used with different days", () => {
+    const userInput = {
+      member: "jeff",
+      ["add-days"]: ["1", "3", "07:00", 5, "17:00", 8, 10, "07:00"],
+      ["remove-days"]: [2, 6],
+    };
+    const sanitizedInput = getReservationChangesFromUserInput(userInput);
+    expect(sanitizedInput.data).toEqual({
+      member: "jeff",
+      addDays: [1, 3, "07:00", 5, "17:00", 8, 10, "07:00"],
+      removeDays: [2, 6],
+    });
+  });
+
+  it("throws UserInputBoundaryError if remove-days contains training hours", () => {
+    const userInput = {
+      member: "jeff",
+      ["add-days"]: ["1", "3", "8:00", 5, "17:00"],
+      ["remove-days"]: [2, 6, "07:00"],
+    };
+    expect(() => getReservationChangesFromUserInput(userInput)).toThrow(
+      UserInputBoundaryError
+    );
+  });
+
+  it("throws UserInputBoundaryError if add-days contains duplicated days", () => {
+    const userInput = {
+      member: "jeff",
+      ["add-days"]: ["1", "3", "8:00", 1, "17:00"],
+      ["remove-days"]: [2, 6],
+    };
+    expect(() => getReservationChangesFromUserInput(userInput)).toThrow(
+      UserInputBoundaryError
+    );
+  });
+
+  it("throws UserInputBoundaryError if remove-days contains duplicated days", () => {
+    const userInput = {
+      member: "jeff",
+      ["add-days"]: ["1", "3", "8:00", 5, "17:00"],
+      ["remove-days"]: [2, 6, 8, 2],
+    };
+    expect(() => getReservationChangesFromUserInput(userInput)).toThrow(
+      UserInputBoundaryError
+    );
   });
 });

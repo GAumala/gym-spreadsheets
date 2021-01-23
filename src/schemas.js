@@ -4,6 +4,12 @@ const Joi = require("joi");
 const memberIDRegex = new RegExp("^[a-z_0-9]+$");
 const dayRegex = new RegExp("^[0-3][0-9]-(Lun|Mar|Mié|Jue|Vie|Sáb|Dom)$");
 
+const onlyNumbersComparator = (a, b) => {
+  if (typeof a === "number" && typeof b === "number") return a === b;
+
+  return false;
+};
+
 const memberIdentificationSchema = Joi.object({
   id: Joi.string().pattern(memberIDRegex).allow(""),
   nombre: Joi.string().required(),
@@ -69,6 +75,22 @@ const timeSlotSchema = Joi.object({
 
 const timeSlotArraySchema = Joi.array().items(timeSlotSchema);
 
+const reservationChangesSchema = Joi.object({
+  member: Joi.string().pattern(memberIDRegex),
+  removeDays: Joi.array()
+    .items(Joi.number().positive().integer().min(1).max(31))
+    .unique()
+    .required(),
+  // for add-days we only want uniqueness in numbers (days), not strings (hours)
+  // so we pass a custom comparator
+  addDays: Joi.array()
+    .items(
+      Joi.alternatives().try(Joi.any().valid(...trainingHours), Joi.number())
+    )
+    .unique(onlyNumbersComparator)
+    .required(),
+});
+
 const cacheMetadataSchema = Joi.object({
   args: Joi.array().items(Joi.string()),
   systemTime: Joi.number().positive().integer(),
@@ -94,5 +116,6 @@ module.exports = {
   newReservationSchema,
   sheetTitleSchema,
   timeSlotArraySchema,
+  reservationChangesSchema,
   timeSchema,
 };

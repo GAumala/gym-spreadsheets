@@ -29,7 +29,7 @@ const moveDateArrayToNextTrainingHour = (dateArray) => {
   const tomorrowDateArray =
     nextDay > lastMonthDay
       ? moveDateArrayToNextMonthStart(dateArray)
-      : [year, month, nextDay, hour, minute];
+      : [year, month, nextDay, 0, 0];
 
   return moveDateArrayToNextTrainingHour(tomorrowDateArray);
 };
@@ -80,6 +80,11 @@ const changeDateArrayHourAndMinutes = (dateArray, timeString) => {
   return [year, month, day, specifiedHour, specifiedMinute];
 };
 
+const moveDateArrayToTodaysDawn = (dateArray) => {
+  const [year, month, day] = dateArray;
+  return [year, month, day, 0, 0];
+};
+
 const dateArrayToReadableString = (dateArray) => {
   const [, month, day, hour, minute] = dateArray;
   const readableMonth = getMonthLongName(month);
@@ -95,4 +100,5 @@ module.exports = {
   moveDateArrayToMinuteEarlier,
   moveDateArrayToNextMonthStart,
   moveDateArrayToNextTrainingHour,
+  moveDateArrayToTodaysDawn,
 };

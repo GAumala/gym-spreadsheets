@@ -7,11 +7,12 @@ const {
   newMemberSchema,
   newReservationSchema,
   timeSlotArraySchema,
+  reservationChangesSchema,
   timeSchema,
 } = require("./schemas.js");
 const { SheetBoundaryError, UserInputBoundaryError } = require("./errors.js");
 
-const badHourFormatRegex = new RegExp("^[0-9]:[0-9][0-9]$");
+const badHourFormatRegex = new RegExp("^[1-9]:(00|30)$");
 
 const getAsString = (value) => {
   if (typeof value === "string") return value.trim();
@@ -192,6 +193,16 @@ const getNewReservationFromUserInput = (input) =>
     },
   });
 
+const getReservationChangesFromUserInput = (input) =>
+  runUserInputBoundary({
+    schema: reservationChangesSchema,
+    input: {
+      member: input.member,
+      addDays: input["add-days"].map((v) => getAsHourString(v)),
+      removeDays: input["remove-days"],
+    },
+  });
+
 const getTimeFromUserInput = (input) =>
   runUserInputBoundary({
     schema: timeSchema,
@@ -220,6 +231,7 @@ module.exports = {
   getNewReservationFromUserInput,
   getTimeFromUserInput,
   getTimetableDataFromSheet,
+  getReservationChangesFromUserInput,
   translateChallengeKey,
   translateMemberKey,
   translateTimeSlotKey,

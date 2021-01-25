@@ -72,8 +72,18 @@ const setReservationRows = (rows) =>
   knex.transaction(async (trx) => {
     await clearReservations(trx);
     if (rows.length === 0) return;
+
+    // check all referenced members exist
+    const members = await trx.select("id").from("miembro");
+    const memberIDSet = reduceArrayToObject(members, "id");
+    rows.forEach((reservation) => {
+      if (!memberIDSet[reservation.miembro])
+        throw new FatalError("UNKNOWN_RESERVATION_MEMBER", reservation);
+    });
+
     await insertReservation(rows, trx);
 
+    // check that member reservation limit is not exceeded
     const violations = await checkReservationSlotConstraint(trx);
     if (violations.length > 0)
       throw new FatalError("EXCESS_RESERVATIONS_IN_SLOT", { violations });

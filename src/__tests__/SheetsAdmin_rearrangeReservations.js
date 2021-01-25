@@ -141,7 +141,7 @@ describe("rearrangeReservations", () => {
     expect(error).toMatchSnapshot();
   });
 
-  describe("happy path with one timetable", () => {
+  describe("with only one timetable", () => {
     const reconciliateFn = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() =>
@@ -183,51 +183,195 @@ describe("rearrangeReservations", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 12, 27, 17, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
-    let res;
 
-    beforeAll(async () => {
-      res = await admin.rearrangeReservations({
-        member: "ben",
-        ["add-days"]: ["29", "30", "2", "08:00"],
-        ["remove-days"]: ["28", "1"],
+    describe("happy path rearranging reservations only in this month", () => {
+      let res;
+      beforeAll(async () => {
+        reconciliateFn.mockClear();
+        sheetsAPI.loadReservations.mockClear();
+
+        const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+        res = await admin.rearrangeReservations({
+          member: "jeff",
+          ["add-days"]: ["29", "30", "08:00"],
+          ["remove-days"]: ["28"],
+        });
+      });
+
+      it("calls sheetsAPI.loadReservations only for current month", async () => {
+        expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(1);
+        expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("DIC-2020");
+      });
+
+      it("returns a readable message listing the rearranged reservations", () => {
+        expect(res).toBeDefined();
+        expect(res.message).toMatchSnapshot();
+      });
+
+      it("calls reconciliateFn with the modified reservations", () => {
+        expect(reconciliateFn).toHaveBeenCalledWith([
+          {
+            miembro: "ben",
+            dia: "28-Lun",
+            hora: "18:00",
+          },
+          {
+            miembro: "jeff",
+            dia: "29-Mar",
+            hora: "08:00",
+          },
+          {
+            miembro: "ben",
+            dia: "29-Mar",
+            hora: "18:00",
+          },
+          {
+            miembro: "jeff",
+            dia: "30-Mié",
+            hora: "08:00",
+          },
+        ]);
       });
     });
 
-    it("returns a readable message with the modified reservations", () => {
-      expect(res).toBeDefined();
-      expect(res.message).toMatchSnapshot();
+    describe("happy path rearranging reservations only in next month", () => {
+      let res;
+
+      const myLoadReservationsMock = jest.fn((sheetTitle) => {
+        if (sheetTitle == "ENE-2021")
+          return Promise.resolve({
+            data: [
+              {
+                miembro: "jeff",
+                dia: "01-Vie",
+                hora: "18:00",
+              },
+              {
+                miembro: "ben",
+                dia: "01-Vie",
+                hora: "18:00",
+              },
+              {
+                miembro: "jeff",
+                dia: "02-Sáb",
+                hora: "06:00",
+              },
+              {
+                miembro: "ben",
+                dia: "02-Sáb",
+                hora: "18:00",
+              },
+            ],
+            reconciliateFn,
+          });
+
+        return Promise.resolve({ timeTableMissing: true });
+      });
+
+      beforeAll(async () => {
+        reconciliateFn.mockClear();
+
+        const admin = new SheetsAdmin({
+          sheetsAPI: {
+            ...sheetsAPI,
+            loadReservations: myLoadReservationsMock,
+          },
+          db,
+          clock,
+        });
+        res = await admin.rearrangeReservations({
+          member: "ben",
+          ["add-days"]: ["1", "3", "08:00"],
+          ["remove-days"]: ["2"],
+        });
+      });
+
+      it("calls sheetsAPI.loadReservations only for next month", async () => {
+        expect(myLoadReservationsMock).toHaveBeenCalledTimes(1);
+        expect(myLoadReservationsMock).toHaveBeenCalledWith("ENE-2021");
+      });
+
+      it("returns a readable message listing the rearranged reservations", () => {
+        expect(res).toBeDefined();
+        expect(res.message).toMatchSnapshot();
+      });
+
+      it("calls reconciliateFn with the modified reservations", () => {
+        expect(reconciliateFn).toHaveBeenCalledWith([
+          {
+            miembro: "ben",
+            dia: "01-Vie",
+            hora: "08:00",
+          },
+          {
+            miembro: "jeff",
+            dia: "01-Vie",
+            hora: "18:00",
+          },
+
+          {
+            miembro: "jeff",
+            dia: "02-Sáb",
+            hora: "06:00",
+          },
+          {
+            miembro: "ben",
+            dia: "03-Dom",
+            hora: "08:00",
+          },
+        ]);
+      });
     });
 
-    it("calls reconciliateFn with the modified reservations", () => {
-      expect(reconciliateFn).toHaveBeenCalledWith([
-        {
-          miembro: "jeff",
-          dia: "28-Lun",
-          hora: "18:00",
-        },
-        {
-          miembro: "jeff",
-          dia: "29-Mar",
-          hora: "06:00",
-        },
-        {
-          miembro: "ben",
-          dia: "29-Mar",
-          hora: "08:00",
-        },
-        {
-          miembro: "ben",
-          dia: "30-Mié",
-          hora: "08:00",
-        },
-      ]);
-    });
+    describe("happy path rearranging reservations in this month and next", () => {
+      let res;
 
-    it("calls sheetsAPI.loadReservations with the correct titles", async () => {
-      expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(2);
-      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("DIC-2020");
-      expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("ENE-2021");
+      beforeAll(async () => {
+        reconciliateFn.mockClear();
+        sheetsAPI.loadReservations.mockClear();
+        const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+        res = await admin.rearrangeReservations({
+          member: "ben",
+          ["add-days"]: ["29", "30", "2", "08:00"],
+          ["remove-days"]: ["28", "1"],
+        });
+      });
+
+      it("returns a readable message using <SIN_HOJA> in reservations targeting next month", () => {
+        expect(res).toBeDefined();
+        expect(res.message).toMatchSnapshot();
+      });
+
+      it("calls reconciliateFn with the modified reservations", () => {
+        expect(reconciliateFn).toHaveBeenCalledWith([
+          {
+            miembro: "jeff",
+            dia: "28-Lun",
+            hora: "18:00",
+          },
+          {
+            miembro: "jeff",
+            dia: "29-Mar",
+            hora: "06:00",
+          },
+          {
+            miembro: "ben",
+            dia: "29-Mar",
+            hora: "08:00",
+          },
+          {
+            miembro: "ben",
+            dia: "30-Mié",
+            hora: "08:00",
+          },
+        ]);
+      });
+
+      it("calls sheetsAPI.loadReservations with the correct titles", async () => {
+        expect(sheetsAPI.loadReservations).toHaveBeenCalledTimes(2);
+        expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("DIC-2020");
+        expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("ENE-2021");
+      });
     });
   });
 

@@ -94,6 +94,8 @@ const getFatalErrorMsg = (key, params) => {
       );
     case "SLOT_IS_FULL":
       return `No se pueden agregar mas miembros para el día ${params.dia} a las ${params.hora}. Por favor busca otro horario.`;
+    case "UNKNOWN_RESERVATION_MEMBER":
+      return `Se encontro una reservacion para ${params.miembro} con fecha ${params.dia} ${params.hora}, pero este miembro no existe. Por favor arregla la hoja de reservaciones.`;
     case "ALREADY_RESERVED":
       return `Este miembro ya reservó anteriormente para el día ${params.dia} a las ${params.hora}.`;
     case "MEMBER_NOT_FOUND":

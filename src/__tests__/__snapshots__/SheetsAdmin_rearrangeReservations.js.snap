@@ -12,7 +12,18 @@ exports[`rearrangeReservations fails when input is empty 1`] = `[FatalError: Por
 
 exports[`rearrangeReservations fails when member is not found 1`] = `[FatalError: No se encontró un miembro con ID: not_user.]`;
 
-exports[`rearrangeReservations happy path with one timetable returns a readable message with the modified reservations 1`] = `
+exports[`rearrangeReservations happy path with two timetable returns a readable message with the modified reservations 1`] = `
+"Se modificaron las reservaciones de Ben:
+
+28-Lun <ELIMINADA>
+29-Mar 08:00
+30-Mié 08:00
+01-Vie <ELIMINADA>
+02-Sáb 08:00
+"
+`;
+
+exports[`rearrangeReservations with only one timetable happy path rearranging reservations in this month and next returns a readable message using <SIN_HOJA> in reservations targeting next month 1`] = `
 "Se modificaron las reservaciones de Ben:
 
 28-Lun <ELIMINADA>
@@ -23,13 +34,20 @@ exports[`rearrangeReservations happy path with one timetable returns a readable 
 "
 `;
 
-exports[`rearrangeReservations happy path with two timetable returns a readable message with the modified reservations 1`] = `
+exports[`rearrangeReservations with only one timetable happy path rearranging reservations only in next month returns a readable message listing the rearranged reservations 1`] = `
 "Se modificaron las reservaciones de Ben:
+
+01-Vie 08:00
+02-Sáb <ELIMINADA>
+03-Dom 08:00
+"
+`;
+
+exports[`rearrangeReservations with only one timetable happy path rearranging reservations only in this month returns a readable message listing the rearranged reservations 1`] = `
+"Se modificaron las reservaciones de Jeff:
 
 28-Lun <ELIMINADA>
 29-Mar 08:00
 30-Mié 08:00
-01-Vie <ELIMINADA>
-02-Sáb 08:00
 "
 `;

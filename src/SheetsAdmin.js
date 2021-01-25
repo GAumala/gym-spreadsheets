@@ -93,12 +93,15 @@ const removeMemberFromTimeTable = async (admin, dateArray, id) => {
 };
 
 const rearrangeTimeTable = async (admin, dateArray, rearrangements) => {
-  if (rearrangements.daysToRearrange.length === 0) return [];
+  if (rearrangements.daysToRearrange.length === 0)
+    return {
+      commitChanges: () => Promise.resolve(),
+      rearrangedSlots: [],
+    };
 
   const { timeTableMissing, reconciliateFn } = await populateReservationTable(
     admin,
-    dateArray,
-    true
+    dateArray
   );
 
   if (timeTableMissing)

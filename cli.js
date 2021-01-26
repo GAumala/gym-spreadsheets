@@ -36,6 +36,8 @@ const handleReservationsCommand = (argv) =>
         return admin.listMembersThatReservedAtTime(argv);
       case "create-sheet":
         return admin.createTimeTableSheet(argv);
+      case "clean":
+        return admin.cleanReservations(argv);
       default:
         return Promise.reject({
           isCustom: true,
@@ -139,6 +141,10 @@ const buildReservationsCommand = (yargs) =>
     .example(
       "$0 reservations rearrange --member carlos_sanchez --add-days 28 07:00 29 08:00 --remove-days 30 31",
       'Adds reservations for member with ID "carlos_sanchez" deleting on 28th at 07:00 and 29 at 08:00. Also deletes any reservations for that member on the 30th and 31st'
+    )
+    .example(
+      "$0 reservations clean",
+      "Removes reservations for past days and reservations with unknown members"
     );
 
 const buildMembersCommand = (yargs) =>

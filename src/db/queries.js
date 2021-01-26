@@ -68,16 +68,20 @@ const setMemberRows = (rows) =>
       throw new FatalError("EXCESS_MEMBERS_IN_HOUR", { violations });
   });
 
+const getMembersByIDMap = async (db = knex) => {
+  const members = await db.select("id").from("miembro");
+  return reduceArrayToObject(members, "id");
+};
+
 const setReservationRows = (rows) =>
   knex.transaction(async (trx) => {
     await clearReservations(trx);
     if (rows.length === 0) return;
 
     // check all referenced members exist
-    const members = await trx.select("id").from("miembro");
-    const memberIDSet = reduceArrayToObject(members, "id");
+    const memberIDsMap = await getMembersByIDMap(trx);
     rows.forEach((reservation) => {
-      if (!memberIDSet[reservation.miembro])
+      if (!memberIDsMap[reservation.miembro])
         throw new FatalError("UNKNOWN_RESERVATION_MEMBER", reservation);
     });
 
@@ -273,6 +277,7 @@ module.exports = {
   deleteAllMemberReservations,
   deleteMember,
   findMiembroById,
+  getMembersByIDMap,
   getReservationsAtSlot,
   insertMiembro,
   insertNewMember,

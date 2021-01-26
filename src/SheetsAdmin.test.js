@@ -1,6 +1,13 @@
 const dbConnection = require("./db.js");
 const db = require("./db/queries.js");
+const PromiseReporter = require("./reporter/PromiseReporter.js");
 const SheetsAdmin = require("./SheetsAdmin.js");
+
+const mockReporter = {
+  report: jest.fn(),
+  clear: jest.fn(),
+};
+const reporter = new PromiseReporter(mockReporter);
 
 const testingMembers = [
   {
@@ -118,7 +125,7 @@ describe("setMissingUserIDs", () => {
       ),
     };
     const clock = {};
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     beforeAll(async () => {
       await db.clear();
@@ -181,7 +188,7 @@ describe("createTimeTableSheet", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     beforeEach(async () => {
       await db.clear();
@@ -229,5 +236,153 @@ describe("createTimeTableSheet", () => {
         expect(timeTable).toHaveLength(75); // (30 - 5) * 3
       });
     });
+  });
+});
+
+describe("cleanReservations", () => {
+  const reconciliateFn = jest.fn(() => Promise.resolve());
+  const reservations = [
+    {
+      miembro: "jeff",
+      dia: "20-Vie",
+      hora: "17:00",
+    },
+    {
+      miembro: "ben",
+      dia: "20-Vie",
+      hora: "17:00",
+    },
+    {
+      miembro: "jeff",
+      dia: "23-Lun",
+      hora: "17:00",
+    },
+    {
+      miembro: "ben",
+      dia: "23-Lun",
+      hora: "17:00",
+    },
+    {
+      miembro: "jeff",
+      dia: "24-Mar",
+      hora: "17:00",
+    },
+    {
+      miembro: "ben",
+      dia: "24-Mar",
+      hora: "17:00",
+    },
+  ];
+  const sheetsAPI = {
+    loadMembers: jest.fn(() =>
+      Promise.resolve({
+        data: testingMembers.slice(0, 3),
+      })
+    ),
+    loadReservations: jest.fn((sheetTitle) => {
+      if (sheetTitle === "NOV-2020")
+        return Promise.resolve({
+          data: reservations,
+          reconciliateFn,
+        });
+
+      return Promise.resolve({ timeTableMissing: true });
+    }),
+  };
+
+  const clock = {
+    getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15]),
+  };
+
+  beforeEach(() => {
+    reconciliateFn.mockClear();
+  });
+
+  it("removes reservations from before the current day", async () => {
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
+    const res = await admin.cleanReservations();
+
+    expect(res.data).toEqual(2);
+    expect(reconciliateFn).toHaveBeenCalledWith([
+      {
+        miembro: "jeff",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+      {
+        miembro: "ben",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+      {
+        miembro: "jeff",
+        dia: "24-Mar",
+        hora: "17:00",
+      },
+      {
+        miembro: "ben",
+        dia: "24-Mar",
+        hora: "17:00",
+      },
+    ]);
+  });
+  it("removes reservations for deleted members", async () => {
+    const unknownMemberReservations = [
+      {
+        miembro: "unknown1",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+      {
+        miembro: "unknown2",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+    ];
+
+    const alteredSheetsAPI = {
+      ...sheetsAPI,
+      loadReservations: jest.fn((sheetTitle) => {
+        if (sheetTitle === "NOV-2020")
+          return Promise.resolve({
+            data: reservations.concat(unknownMemberReservations),
+            reconciliateFn,
+          });
+
+        return Promise.resolve({ timeTableMissing: true });
+      }),
+    };
+
+    const admin = new SheetsAdmin({
+      sheetsAPI: alteredSheetsAPI,
+      db,
+      clock,
+      reporter,
+    });
+    const res = await admin.cleanReservations();
+
+    expect(res.data).toEqual(4);
+    expect(reconciliateFn).toHaveBeenCalledWith([
+      {
+        miembro: "jeff",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+      {
+        miembro: "ben",
+        dia: "23-Lun",
+        hora: "17:00",
+      },
+      {
+        miembro: "jeff",
+        dia: "24-Mar",
+        hora: "17:00",
+      },
+      {
+        miembro: "ben",
+        dia: "24-Mar",
+        hora: "17:00",
+      },
+    ]);
   });
 });

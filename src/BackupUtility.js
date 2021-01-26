@@ -42,27 +42,44 @@ const validateHistoryFile = (file) => {
   }
 };
 
-const undoWithFile = async (sheetsAPI, file) => {
+const undoWithFile = async (utility, file) => {
+  const { sheetsAPI, reporter } = utility;
+
   switch (file.type) {
     case "metadata":
       return;
 
     case "members": {
-      const { reconciliateFn } = await sheetsAPI.loadMembers();
-      return reconciliateFn(file.data);
+      const { reconciliateFn } = await reporter
+        .report("Cargando miembros")
+        .whileDoing(sheetsAPI.loadMembers());
+
+      return reporter
+        .report("Restableciendo miembros")
+        .whileDoing(reconciliateFn(file.data));
     }
 
     case "reservations": {
       const { sheetTitle, data } = file;
-      const loadRes = await sheetsAPI.loadReservations(sheetTitle);
+
+      const loadRes = await reporter
+        .report(`Cargando resrvaciones ${sheetTitle}`)
+        .whileDoing(sheetsAPI.loadReservations(sheetTitle));
+
       if (!loadRes.err) {
         const { reconciliateFn } = loadRes;
-        return reconciliateFn(data);
+
+        return reporter
+          .report(`Restableciendo resrvaciones ${sheetTitle}`)
+          .whileDoing(reconciliateFn(data));
       } else if (loadRes.err === "SHEET_NOT_FOUND") {
-        const { reconciliateFn } = await sheetsAPI.createTimeTableSheet(
-          sheetTitle
-        );
-        return reconciliateFn(data);
+        const createSheetWithNewData = sheetsAPI
+          .createTimeTableSheet(sheetTitle)
+          .then(({ reconciliateFn }) => reconciliateFn(data));
+
+        return reporter
+          .report(`Restableciendo reservaciones ${sheetTitle}`)
+          .whileDoing(createSheetWithNewData);
       }
 
       throw loadRes.err;
@@ -70,15 +87,18 @@ const undoWithFile = async (sheetsAPI, file) => {
 
     case "new-timetable": {
       const { sheetTitle } = file;
-      return sheetsAPI.deleteTimeTableSheet(sheetTitle);
+      return reporter
+        .report(`Borrando hoja de reservaciones ${sheetTitle}`)
+        .whileDoing(sheetsAPI.deleteTimeTableSheet(sheetTitle));
     }
   }
 };
 
 class BackupUtility {
-  constructor({ sheetsAPI, cache }) {
+  constructor({ sheetsAPI, cache, reporter }) {
     this.sheetsAPI = sheetsAPI;
     this.cache = cache;
+    this.reporter = reporter;
   }
 
   /**
@@ -92,7 +112,7 @@ class BackupUtility {
   }
 
   async undo(args) {
-    const { cache, sheetsAPI } = this;
+    const { cache } = this;
     const { data: keyData } = boundary.getHashFromUserInput(args);
     const { hash } = keyData;
 
@@ -101,7 +121,7 @@ class BackupUtility {
 
     files.forEach(validateHistoryFile);
 
-    const promises = files.map((f) => undoWithFile(sheetsAPI, f));
+    const promises = files.map((f) => undoWithFile(this, f));
     await Promise.all(promises);
 
     return {};

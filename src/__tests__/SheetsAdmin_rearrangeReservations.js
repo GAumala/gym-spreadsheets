@@ -1,6 +1,13 @@
 const dbConnection = require("../db.js");
 const db = require("../db/queries.js");
+const PromiseReporter = require("../reporter/PromiseReporter.js");
 const SheetsAdmin = require("../SheetsAdmin.js");
+
+const mockReporter = {
+  report: jest.fn(),
+  clear: jest.fn(),
+};
+const reporter = new PromiseReporter(mockReporter);
 
 const testingMembers = [
   {
@@ -96,7 +103,7 @@ describe("rearrangeReservations", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     let error;
     try {
@@ -124,7 +131,7 @@ describe("rearrangeReservations", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     let error;
     try {
@@ -190,7 +197,7 @@ describe("rearrangeReservations", () => {
         reconciliateFn.mockClear();
         sheetsAPI.loadReservations.mockClear();
 
-        const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+        const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
         res = await admin.rearrangeReservations({
           member: "jeff",
           ["add-days"]: ["29", "30", "08:00"],
@@ -278,6 +285,7 @@ describe("rearrangeReservations", () => {
           },
           db,
           clock,
+          reporter,
         });
         res = await admin.rearrangeReservations({
           member: "ben",
@@ -329,7 +337,7 @@ describe("rearrangeReservations", () => {
       beforeAll(async () => {
         reconciliateFn.mockClear();
         sheetsAPI.loadReservations.mockClear();
-        const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+        const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
         res = await admin.rearrangeReservations({
           member: "ben",
           ["add-days"]: ["29", "30", "2", "08:00"],
@@ -442,7 +450,7 @@ describe("rearrangeReservations", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 12, 27, 17, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
     let res;
 
     beforeAll(async () => {
@@ -612,7 +620,7 @@ describe("rearrangeReservations", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 12, 27, 17, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
     let error;
 
     beforeAll(async () => {

@@ -1,5 +1,7 @@
 const clock = require("./clock.js");
 const db = require("./db/queries.js");
+const cliReporter = require("./reporter/cli-reporter.js");
+const PromiseReporter = require("./reporter/PromiseReporter.js");
 const methods = require("./sheets/methods.js");
 const storage = require("./lib/json-file-storage.js");
 const { CacheReader, CacheWriter } = require("./cache.js");
@@ -39,14 +41,16 @@ const createSheetsAdmin = () => {
   const args = process.argv.slice(2);
   const systemTime = Date.now();
   const cache = new CacheWriter({ storage, systemTime, args });
+  const reporter = new PromiseReporter(cliReporter);
   const sheetsAPI = createSheetsAPI(cache);
-  return new SheetsAdmin({ sheetsAPI, db, clock });
+  return new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 };
 
 const createBackupUtility = () => {
   const sheetsAPI = createSheetsAPI();
   const cache = new CacheReader({ storage });
-  return new BackupUtility({ sheetsAPI, db, clock, cache });
+  const reporter = new PromiseReporter(cliReporter);
+  return new BackupUtility({ sheetsAPI, db, clock, cache, reporter });
 };
 
 /**

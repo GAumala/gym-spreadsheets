@@ -12,8 +12,8 @@ const runCLIProgram = (make, exec) => {
       console.log(message);
     })
     .catch((e) => {
-      if (e === undefined) console.log("Undefined error thrown");
-      if (e.isCustom) console.log(e.message);
+      if (e === undefined) console.error("Undefined error thrown");
+      if (e.isCustom) console.error(e.message);
       else console.log(e);
     })
     .finally(() => dbConnection.destroy());

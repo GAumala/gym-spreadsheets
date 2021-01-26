@@ -1,6 +1,13 @@
 const dbConnection = require("../db.js");
 const db = require("../db/queries.js");
+const PromiseReporter = require("../reporter/PromiseReporter.js");
 const SheetsAdmin = require("../SheetsAdmin.js");
+
+const mockReporter = {
+  report: jest.fn(),
+  clear: jest.fn(),
+};
+const reporter = new PromiseReporter(mockReporter);
 
 const testingMembers = [
   {
@@ -159,7 +166,7 @@ describe("removeMember", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 12, 28, 17, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     beforeAll(async () => {
       return admin.removeMember({ id: "ben" });
@@ -248,7 +255,7 @@ describe("removeMember", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 12, 28, 17, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     beforeAll(async () => {
       return admin.removeMember({ id: "ben" });
@@ -290,7 +297,7 @@ describe("removeMember", () => {
     const clock = {
       getFullDateArray: jest.fn(() => [2020, 11, 23, 21, 15]),
     };
-    const admin = new SheetsAdmin({ sheetsAPI, db, clock });
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
 
     let error;
     try {

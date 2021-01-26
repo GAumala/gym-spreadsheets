@@ -1,5 +1,12 @@
 const dbConnection = require("./db.js");
+const PromiseReporter = require("./reporter/PromiseReporter.js");
 const BackupUtility = require("./BackupUtility.js");
+
+const mockReporter = {
+  report: jest.fn(),
+  clear: jest.fn(),
+};
+const reporter = new PromiseReporter(mockReporter);
 
 jest.mock("./lib/dateFormatters.js", () => ({
   getReadableDateTime: (timestamp) => "" + timestamp,
@@ -89,7 +96,7 @@ describe("undo", () => {
         })
       ),
     };
-    const backup = new BackupUtility({ cache, sheetsAPI });
+    const backup = new BackupUtility({ cache, sheetsAPI, reporter });
     await backup.undo({ hash: "da55ef" });
 
     expect(sheetsAPI.deleteTimeTableSheet).toHaveBeenCalledWith("DIC-2020");
@@ -134,7 +141,7 @@ describe("undo", () => {
         })
       ),
     };
-    const backup = new BackupUtility({ cache, sheetsAPI });
+    const backup = new BackupUtility({ cache, sheetsAPI, reporter });
     await backup.undo({ hash: "da55ef" });
 
     expect(reconciliateMembers).toHaveBeenCalledWith(restoredMembers);
@@ -175,7 +182,7 @@ describe("undo", () => {
         })
       ),
     };
-    const backup = new BackupUtility({ cache, sheetsAPI });
+    const backup = new BackupUtility({ cache, sheetsAPI, reporter });
     await backup.undo({ hash: "da55ef" });
 
     expect(sheetsAPI.loadReservations).toHaveBeenCalledWith("DIC-2020");

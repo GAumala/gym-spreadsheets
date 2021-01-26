@@ -4,10 +4,11 @@ const lib = require("./lib.js");
 const { thousandthIntToNumber } = require("./lib/units.js");
 const getMessage = require("./messages.js");
 const {
+  breakTimeSlotsWithDate,
   convertDateToSlot,
   createMonthSlots,
   createFutureSlotsAtHour,
-  breakTimeSlotsWithDate,
+  formatDayForTimeSlot,
 } = require("./lib/timeSlot.js");
 const {
   changeDateArrayHourAndMinutes,
@@ -29,22 +30,65 @@ const getDateArrayBeforeDayNumber = (clock, dayNumber) => {
 };
 
 const populateMemberTable = async (admin) => {
-  const loadRes = await admin.sheetsAPI.loadMembers();
+  const loadRes = await admin.reporter
+    .report("Cargando miembros")
+    .whileDoing(admin.sheetsAPI.loadMembers());
+
   await admin.db.setMemberRows(loadRes.data);
+
   return loadRes;
 };
 
+const cleanReservationTable = async (admin, dateArray, memberIDsMap) => {
+  const { reporter, sheetsAPI } = admin;
+  const [year, month, day] = dateArray;
+  const today = formatDayForTimeSlot(year, month, day);
+
+  const sheetTitle = lib.getTimetableSheetName(year, month);
+
+  const { data, timeTableMissing, reconciliateFn } = await reporter
+    .report(`Cargando reservaciones ${sheetTitle}`)
+    .whileDoing(sheetsAPI.loadReservations(sheetTitle));
+
+  if (timeTableMissing) return 0;
+
+  // 1st filter keeps only rows from today onwards
+  // 2nd filter keeps only rows with known members
+  const cleanRows = data
+    .filter((reservation) => reservation.dia >= today)
+    .filter((reservation) => !!memberIDsMap[reservation.miembro]);
+
+  const totalCleaned = data.length - cleanRows.length;
+  if (totalCleaned === 0) return 0;
+
+  await reporter
+    .report(`Actualizando reservaciones ${sheetTitle}`)
+    .whileDoing(reconciliateFn(cleanRows));
+
+  return totalCleaned;
+};
+
 const populateReservationTable = async (admin, dateArray, useAll) => {
-  const { sheetsAPI, db } = admin;
+  const { reporter, sheetsAPI, db } = admin;
   const [year, month] = dateArray;
 
   const sheetTitle = lib.getTimetableSheetName(year, month);
-  const loadRes = await sheetsAPI.loadReservations(sheetTitle);
+
+  const loadRes = await reporter
+    .report(`Cargando reservaciones ${sheetTitle}`)
+    .whileDoing(sheetsAPI.loadReservations(sheetTitle));
+
   if (loadRes.timeTableMissing) return { ...loadRes, sheetTitle };
 
   if (useAll) {
     await db.setReservationRows(loadRes.data);
-    return loadRes;
+    return {
+      ...loadRes,
+      reconciliateFn: async (newData) =>
+        reporter
+          .report(`Actualizando reservaciones ${sheetTitle}`)
+          .whileDoing(loadRes.reconciliateFn(newData)),
+    };
   }
 
   // only future rows should be used
@@ -55,7 +99,10 @@ const populateReservationTable = async (admin, dateArray, useAll) => {
     ...loadRes,
     data: future,
     sheetTitle,
-    reconciliateFn: (newData) => loadRes.reconciliateFn(past.concat(newData)),
+    reconciliateFn: (newData) =>
+      reporter
+        .report(`Actualizando reservaciones ${sheetTitle}`)
+        .whileDoing(loadRes.reconciliateFn(past.concat(newData))),
   };
 };
 
@@ -124,8 +171,9 @@ const rearrangeTimeTable = async (admin, dateArray, rearrangements) => {
 };
 
 class SheetsAdmin {
-  constructor({ sheetsAPI, clock, db, cache }) {
+  constructor({ sheetsAPI, clock, db, cache, reporter }) {
     this.sheetsAPI = sheetsAPI;
+    this.reporter = reporter;
     this.clock = clock;
     this.cache = cache;
     this.db = db;
@@ -406,6 +454,28 @@ class SheetsAdmin {
     return {
       data: rearrangedSlots,
       message: getMessage("LIST_REARRANGEMENTS", { rearrangedSlots, name }),
+    };
+  }
+
+  async cleanReservations() {
+    const { clock, db } = this;
+
+    await populateMemberTable(this);
+    const memberIDsMap = await db.getMembersByIDMap();
+
+    const dateArrays = withValue(clock.getFullDateArray(), (v) => ({
+      today: moveDateArrayToTodaysDawn(v),
+      nextMonth: moveDateArrayToNextMonthStart(v),
+    }));
+
+    const totalCleaned = [
+      await cleanReservationTable(this, dateArrays.today, memberIDsMap),
+      await cleanReservationTable(this, dateArrays.nextMonth, memberIDsMap),
+    ].reduce((sum, count) => sum + count, 0);
+
+    return {
+      data: totalCleaned,
+      message: `Se limpiaron ${totalCleaned} filas`,
     };
   }
 }

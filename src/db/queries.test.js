@@ -30,68 +30,6 @@ describe("findMiembroById", () => {
   });
 });
 
-describe("pickChallengeWinners", () => {
-  beforeAll(async () => {
-    await q.clear();
-
-    const miembros = [
-      {
-        id: "jeff",
-        nombre: "Jeff",
-        email: "",
-        entrada: "10:00",
-        notas: "",
-      },
-      {
-        id: "tom",
-        nombre: "Tom",
-        email: "",
-        entrada: "10:00",
-        notas: "",
-      },
-      {
-        id: "bill",
-        nombre: "Bill",
-        email: "",
-        entrada: "10:00",
-        notas: "",
-      },
-      {
-        id: "harry",
-        nombre: "Harry",
-        email: "",
-        entrada: "10:00",
-        notas: "",
-      },
-    ];
-    await q.insertMiembro(miembros);
-  });
-
-  it("returns the 3 rows with highest diff", async () => {
-    const startData = [
-      { miembro: "jeff", medicion: 41000 },
-      { miembro: "tom", medicion: 45000 },
-      { miembro: "bill", medicion: 52000 },
-      { miembro: "harry", medicion: 47300 },
-    ];
-    const endData = [
-      { miembro: "jeff", medicion: 40000 },
-      { miembro: "tom", medicion: 41400 },
-      { miembro: "bill", medicion: 49400 },
-      { miembro: "harry", medicion: 47100 },
-    ];
-
-    const expected = [
-      { nombre: "Tom", start: 45000, end: 41400, diff: 3600 },
-      { nombre: "Bill", start: 52000, end: 49400, diff: 2600 },
-      { nombre: "Jeff", start: 41000, end: 40000, diff: 1000 },
-    ];
-
-    const results = await q.pickChallengeWinners(startData, endData);
-    expect(results).toEqual(expected);
-  });
-});
-
 describe("createMonthReservations", () => {
   beforeAll(async () => {
     await q.clear();

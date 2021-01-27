@@ -5,24 +5,12 @@ const { FatalError } = require("../errors.js");
 const SLOT_CAPACITY = 10;
 
 const clear = (db = knex) =>
-  Promise.all([
-    db("reservacion").truncate(),
-    db("challengeStart").truncate(),
-    db("challengeEnd").truncate(),
-    db("miembro").truncate(),
-  ]);
+  Promise.all([db("reservacion").truncate(), db("miembro").truncate()]);
 
 const clearMembers = (db = knex) => db("miembro").truncate();
 const clearReservations = (db = knex) => db("reservacion").truncate();
 
-const clearChallengeData = (db = knex) =>
-  Promise.all([db("challengeStart").truncate(), db("challengeEnd").truncate()]);
-
 const insertMiembro = (data, db = knex) => db.table("miembro").insert(data);
-const insertChallengeStart = (data, db = knex) =>
-  db.table("challengeStart").insert(data);
-const insertChallengeEnd = (data, db = knex) =>
-  db.table("challengeEnd").insert(data);
 const insertReservation = (data, db = knex) => {
   if (!Array.isArray(data) || data.length < 330)
     return db.table("reservacion").insert(data);
@@ -35,27 +23,6 @@ const getOrderedTimetable = (db = knex) =>
 
 const findMiembroById = (id, db = knex) =>
   db.select("*").from("miembro").where({ id }).first();
-
-const findChallengeWinners = (db = knex) =>
-  db
-    .from("challengeStart")
-    .select(
-      knex.raw(
-        "nombre, challengeStart.medicion as `start`, challengeEnd.medicion as `end`, (challengeStart.medicion - challengeEnd.medicion) as `diff`"
-      )
-    )
-    .innerJoin("challengeEnd", "challengeStart.miembro", "challengeEnd.miembro")
-    .innerJoin("miembro", "challengeStart.miembro", "miembro.id")
-    .orderBy("diff", "desc")
-    .limit(3);
-
-const pickChallengeWinners = (startRows, endRows) =>
-  knex.transaction(async (trx) => {
-    await clearChallengeData(trx);
-    await insertChallengeStart(startRows, trx);
-    await insertChallengeEnd(endRows, trx);
-    return findChallengeWinners(trx);
-  });
 
 const setMemberRows = (rows) =>
   knex.transaction(async (trx) => {
@@ -287,7 +254,6 @@ module.exports = {
   getReservationsAtSlot,
   insertMiembro,
   insertNewMember,
-  pickChallengeWinners,
   rearrangeReservationRows,
   setMemberRows,
   setReservationRows,

@@ -1,7 +1,6 @@
 const boundary = require("./boundary.js");
 const { compose, identity, withValue } = require("./lib/fp.js");
 const lib = require("./lib.js");
-const { thousandthIntToNumber } = require("./lib/units.js");
 const getMessage = require("./messages.js");
 const {
   breakTimeSlotsWithDate,
@@ -19,7 +18,6 @@ const {
   moveDateArrayToTodaysDawn,
 } = require("./lib/dateArray.js");
 const calendar = require("./lib/calendar.js");
-const { createChallengeDBRows } = require("./db/tableHelpers.js");
 const { FatalError } = require("./errors.js");
 
 const getDateArrayBeforeDayNumber = (clock, dayNumber) => {
@@ -191,30 +189,6 @@ class SheetsAdmin {
 
     await membersSheet.reconciliateFn(updated);
     return {};
-  }
-
-  /**
-   * Revisa el spreadsheet de los con las mediciones del challenge y compara
-   * los valores del primer sheet con el segundo. Se asume que el primer sheet
-   * tiene los valores iniciales y la segunda los finales. Devuelve los primeros
-   * tres miembros con mayor diferencia en el challenge.
-   */
-  async pickChallengeWinners() {
-    const { sheetsAPI, db } = this;
-    await this.populateMemberTable();
-
-    const { startData, endData } = await sheetsAPI.loadChallengeContestants();
-
-    const challengeColumn = "peso";
-    const startRows = createChallengeDBRows(challengeColumn, startData);
-    const endRows = createChallengeDBRows(challengeColumn, endData);
-
-    return (await db.pickChallengeWinners(startRows, endRows)).map((row) => ({
-      nombre: row.nombre,
-      start: thousandthIntToNumber(row.start),
-      end: thousandthIntToNumber(row.end),
-      diff: thousandthIntToNumber(row.diff),
-    }));
   }
 
   /**

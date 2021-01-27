@@ -8,18 +8,6 @@ CREATE TABLE miembro(
 );
 CREATE UNIQUE INDEX memberid_index ON miembro(id);
 
-CREATE TABLE challengeStart(
-  miembro   INT  NOT NULL,
-  medicion  INT  NOT NULL,
-  FOREIGN KEY(miembro) REFERENCES miembro(id)
-);
-
-CREATE TABLE challengeEnd(
-  miembro   INT  NOT NULL,
-  medicion  INT  NOT NULL,
-  FOREIGN KEY(miembro) REFERENCES miembro(id)
-);
-
 CREATE TABLE reservacion(
   miembro INT  NOT NULL,
   dia     TEXT NOT NULL,

@@ -86,7 +86,7 @@ const isValidMetadata = (input) =>
     },
   });
 
-const compareMetadata = (a, b) => {
+const compareHistoryItem = (a, b) => {
   if (a.systemTime < b.systemTime) return -1;
   if (a.systemTime > b.systemTime) return 1;
   return 0;
@@ -114,8 +114,8 @@ class CacheReader {
 
     return entries
       .filter(isValidMetadata)
-      .sort(compareMetadata)
-      .map(createHistoryItem);
+      .map(createHistoryItem)
+      .sort(compareHistoryItem);
   }
 }
 

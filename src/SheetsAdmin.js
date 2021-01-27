@@ -223,7 +223,7 @@ class SheetsAdmin {
    * fatal.
    */
   async createTimeTableSheet(args) {
-    const { sheetsAPI, db, clock } = this;
+    const { reporter, sheetsAPI, db, clock } = this;
     await populateMemberTable(this);
 
     const dateArray = clock.getFullDateArray();
@@ -232,11 +232,15 @@ class SheetsAdmin {
       : calendar.getNextMonth(...dateArray);
 
     const sheetName = lib.getTimetableSheetName(year, month);
-    const { reconciliateFn } = await sheetsAPI.createTimeTableSheet(sheetName);
+    const { reconciliateFn } = await reporter
+      .report(`Creando nueva hoja de reservaciones ${sheetName}`)
+      .whileDoing(sheetsAPI.createTimeTableSheet(sheetName));
 
     const slots = createMonthSlots(year, month);
     const reservations = await db.createMonthReservations(slots);
-    await reconciliateFn(reservations);
+    await reporter
+      .report(`Llenando hoja de reservaciones ${sheetName}`)
+      .whileDoing(reconciliateFn(reservations));
     return {};
   }
 

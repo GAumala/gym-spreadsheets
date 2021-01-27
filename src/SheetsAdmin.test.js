@@ -169,7 +169,7 @@ describe("setMissingUserIDs", () => {
 
 describe("createTimeTableSheet", () => {
   describe("happy path", () => {
-    const reconciliateReservations = jest.fn();
+    const reconciliateReservations = jest.fn(() => Promise.resolve());
     const sheetsAPI = {
       loadMembers: jest.fn(() =>
         Promise.resolve({

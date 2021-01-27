@@ -63,14 +63,14 @@ const undoWithFile = async (utility, file) => {
       const { sheetTitle, data } = file;
 
       const loadRes = await reporter
-        .report(`Cargando resrvaciones ${sheetTitle}`)
+        .report(`Cargando reservaciones ${sheetTitle}`)
         .whileDoing(sheetsAPI.loadReservations(sheetTitle));
 
       if (!loadRes.err) {
         const { reconciliateFn } = loadRes;
 
         return reporter
-          .report(`Restableciendo resrvaciones ${sheetTitle}`)
+          .report(`Restableciendo reservaciones ${sheetTitle}`)
           .whileDoing(reconciliateFn(data));
       } else if (loadRes.err === "SHEET_NOT_FOUND") {
         const createSheetWithNewData = sheetsAPI
@@ -108,7 +108,7 @@ class BackupUtility {
     const { cache } = this;
     const historyItems = await cache.listHistory();
     const lines = historyItems.map(printHistoryItemLine);
-    return { message: lines.join("\n") };
+    return { message: lines.join("\n"), data: historyItems };
   }
 
   async undo(args) {

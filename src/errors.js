@@ -70,6 +70,8 @@ const getFatalErrorMsg = (key, params) => {
       return `La hoja ${params.title} ya existe. Si quieres recrearla por favor borrala.`;
     case "SHEET_NOT_FOUND":
       return `La hoja ${params.title} no existe.`;
+    case "MEMBER_ID_TAKEN":
+      return `Error al agregar nuevo miembro con id "${params.id}". Ya hay un miembro (${params.nombre}) con ese id. Si crees que esto no es un error por favor especifica manualmente un id que no sea "${params.id}".`;
     case "NEW_MEMBER_ENTRADA_CONSTR":
       return `Error al agregar nuevo miembro con horario de ${params.entrada}. Ya hay ${params.count} miembros en ese horario.`;
     case "EXCESS_MEMBERS_IN_HOUR":

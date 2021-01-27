@@ -296,3 +296,5 @@ Array [
   ],
 ]
 `;
+
+exports[`addNewMember when id conflicts arise throws a readable error 1`] = `[FatalError: Error al agregar nuevo miembro con id "jeff". Ya hay un miembro (Jeff) con ese id. Si crees que esto no es un error por favor especifica manualmente un id que no sea "jeff".]`;

@@ -69,7 +69,7 @@ const setMemberRows = (rows) =>
   });
 
 const getMembersByIDMap = async (db = knex) => {
-  const members = await db.select("id").from("miembro");
+  const members = await db.select("id", "nombre").from("miembro");
   return reduceArrayToObject(members, "id");
 };
 
@@ -184,7 +184,13 @@ const createMonthReservations = (monthSlots) =>
 
 const insertNewMember = (newMember) =>
   knex.transaction(async (trx) => {
-    const { entrada } = newMember;
+    const { entrada, id } = newMember;
+
+    const memberIDsMap = await getMembersByIDMap(trx);
+    const existingMemberWithSameID = memberIDsMap[id];
+    if (existingMemberWithSameID)
+      throw new FatalError("MEMBER_ID_TAKEN", existingMemberWithSameID);
+
     const membersWithSameHour = await getMemberIDsByTrainingHour(entrada, trx);
     if (membersWithSameHour.length >= SLOT_CAPACITY)
       throw new FatalError("NEW_MEMBER_ENTRADA_CONSTR", {

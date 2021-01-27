@@ -203,6 +203,41 @@ describe("addNewMember", () => {
     });
   });
 
+  describe("when id conflicts arise", () => {
+    const reconciliateMembers = jest.fn(() => Promise.resolve());
+    const sheetsAPI = {
+      loadMembers: jest.fn(() =>
+        Promise.resolve({
+          data: testingMembers,
+          reconciliateFn: reconciliateMembers,
+        })
+      ),
+    };
+    const clock = {
+      getFullDateArray: jest.fn(() => [2020, 11, 25, 0, 0]),
+    };
+    const admin = new SheetsAdmin({ sheetsAPI, db, clock, reporter });
+    let error;
+
+    beforeAll(async () => {
+      await db.clear();
+      try {
+        await admin.addNewMember({ name: "Jeff", hour: "17:00" });
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    it("throws a readable error", async () => {
+      expect(error).toBeDefined();
+      expect(error).toMatchSnapshot();
+    });
+
+    it("does not reconciliate members", async () => {
+      expect(reconciliateMembers).not.toHaveBeenCalled();
+    });
+  });
+
   describe("when reservation conflicts arise", () => {
     const reconciliateMembers = jest.fn(() => Promise.resolve());
     const reconciliateReservations = jest.fn(() => Promise.resolve());

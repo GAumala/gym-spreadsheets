@@ -1,4 +1,4 @@
-const knex = require("../db.js");
+const knex = require("./connection.js");
 const { reduceArrayToObject, selectKeys } = require("../lib/fp.js");
 const { trainingHours } = require("../lib/constants.js");
 const { FatalError } = require("../errors.js");

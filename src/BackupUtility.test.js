@@ -1,4 +1,4 @@
-const dbConnection = require("./db.js");
+const dbConnection = require("./db/connection.js");
 const PromiseReporter = require("./reporter/PromiseReporter.js");
 const BackupUtility = require("./BackupUtility.js");
 

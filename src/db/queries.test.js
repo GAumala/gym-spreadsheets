@@ -1,4 +1,4 @@
-const db = require("../db.js");
+const db = require("./connection.js");
 const q = require("./queries.js");
 
 const getAllMembers = () => db.select("*").from("miembro");

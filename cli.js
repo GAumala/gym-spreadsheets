@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const dbConnection = require("./src/db.js");
+const dbConnection = require("./src/db/connection.js");
 const factory = require("./src/factory.js");
 
 const runCLIProgram = (make, exec) => {

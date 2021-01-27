@@ -1,4 +1,4 @@
-const dbConnection = require("../db.js");
+const dbConnection = require("../db/connection.js");
 const db = require("../db/queries.js");
 const PromiseReporter = require("../reporter/PromiseReporter.js");
 const SheetsAdmin = require("../SheetsAdmin.js");
